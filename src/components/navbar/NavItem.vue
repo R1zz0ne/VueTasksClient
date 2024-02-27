@@ -1,5 +1,5 @@
 <template>
-    <li @click="$router.push(path)" :class="[$route.path === path ? {active: true} : '']">{{title}}</li>
+    <li @click="$router.push(path)" :class="{active: $route.path === path}">{{title}}</li>
 </template>
 
 <script setup lang="ts">

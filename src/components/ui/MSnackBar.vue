@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import {watch} from "vue";
-
 const {} = defineProps();
 //TODO: Разработать логику всплывающего окна
 </script>
