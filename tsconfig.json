@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", //Изменено с ES2020
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.AsyncIterable"], //первый изменен с ES2020
+    "skipLibCheck": true,
+    "moduleResolution": "node", //изменено с bundler
+    //    "moduleResolution": "bundler",
+    "allowJs": true, //добавлено
+    "esModuleInterop": true, //добавлено
+
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
