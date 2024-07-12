@@ -2,59 +2,28 @@
   <div>
     <div class="navBlock">
       <div class="search">
-        <MInput placeholder="Поиск..."></MInput>
+        <m-input v-model="searchInput" style="height: 28px" placeholder="Поиск..."></m-input>
+        <m-button @click="setMode('create')">+</m-button>
       </div>
-      <list-items></list-items>
+      <list-items path="projects" :search-string="searchInput"></list-items>
       <div class="pag">TODO: paginations</div>
     </div>
-    <project-content :project="getProject($route.query.id)"></project-content>
+    <project :mode="mode" :set-mode="setMode"></project>
   </div>
 </template>
 
 <script setup lang="ts">
-import MInput from "../../ui/MInput.vue";
 import ListItems from "./listitems/ListItems.vue";
-import ProjectContent from "./ProjectContent.vue";
+import {ref} from "vue";
+import MButton from "../../ui/MButton.vue";
+import MInput from "../../ui/MInput.vue";
+import Project from "./Project/Project.vue";
 
-const getProject = (id: any) => {
-  if(!!id) {
-    return projects.find((element) => {
-      if(element.id === Number(id)) {
-        return element
-      }
-    })
-  } else {
-    return null
-  }
+const mode = ref("view");
+const searchInput = ref("");
+const setMode = (value: 'view' | 'edit' | 'create') => {
+  mode.value = value;
 }
-
-const projects = [
-  {
-    id: 1,
-    name: "project 1",
-    tasks: [{id: 1, name: "Задача 1", priority: 1, data: "15.02.24"}]
-  }, {
-    id: 2,
-    name: "project 2",
-    tasks: [{id: 2, name: "Задача 2", priority: 1, data: "15.02.24"}]
-  }, {
-    id: 3,
-    name: "project 3",
-    tasks: [{id: 3, name: "Задача 3", priority: 4, data: "14.02.24"}]
-  }, {
-    id: 4,
-    name: "project 4",
-    tasks: [{id: 4, name: "Задача 4", priority: 3, data: "13.02.24"}]
-  }, {
-    id: 5,
-    name: "project 5",
-    tasks: [{id: 5, name: "Задача 5", priority: 2, data: "12.02.24"}]
-  }, {
-    id: 6,
-    name: "project 6",
-    tasks: [{id: 6, name: "Задача 6", priority: 1, data: "11.02.24"}]
-  },
-]
 </script>
 
 <style scoped>
@@ -70,6 +39,10 @@ const projects = [
   height: fit-content;
   padding: 5px;
   border-bottom: 1px solid var(--neutral-400);
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
 }
 
 .pag {
@@ -81,5 +54,4 @@ const projects = [
 input {
   width: 100%;
 }
-
 </style>

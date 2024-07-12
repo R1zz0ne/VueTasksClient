@@ -1,6 +1,15 @@
-import {store} from "../store/store.ts";
-import {IError} from "../models/ErrorModels.ts";
+import {setNotification} from "./setNotification.ts";
 
-export function setError(data: Omit<IError, 'isChecked'>) {
-    store.commit('errorModule/setError', data)
+export function setError(data: any) {
+    if (data.response) {
+        setNotification({
+            message: data.response.data.message,
+            type: 'error'
+        })
+    } else {
+        setNotification({
+            message: data.message,
+            type: 'error'
+        })
+    }
 }

@@ -1,5 +1,8 @@
 <template>
-    <li @click="$router.push(path)" :class="{active: $route.path === path}">{{title}}</li>
+  <li @click="$router.push(path)"
+      :class="{active: $route.path === path || $route.path.startsWith(`${path}/`)}"
+  >{{ title }}
+  </li>
 </template>
 
 <script setup lang="ts">
@@ -15,6 +18,7 @@ li {
   text-align: center;
   color: var(--primary-600);
   font-weight: bold;
+  cursor: pointer;
 }
 
 .active {

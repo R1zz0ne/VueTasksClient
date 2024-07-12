@@ -37,7 +37,6 @@ watchEffect(() => {
   justify-content: flex-end;
   align-items: center;
   padding: 10px;
-  //justify-content: center;
 }
 .nav {
   background-color: var(--neutral-400);

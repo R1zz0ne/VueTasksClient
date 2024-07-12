@@ -1,8 +1,10 @@
 <template>
   <div>
     <ul>
-      <nav-item path="/tasks" title="Задачи" />
+      <nav-item path="/tasks" title="Мои задачи" />
       <nav-item path="/projects" title="Проекты" />
+      <nav-item path="/board" title="Доска" />
+      <nav-item path="/board_test" title="Доска(test)" />
     </ul>
   </div>
 </template>

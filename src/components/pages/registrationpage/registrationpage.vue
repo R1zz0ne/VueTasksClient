@@ -14,24 +14,15 @@
 import MInput from "../../ui/MInput.vue";
 import MButton from "../../ui/MButton.vue";
 import {reactive, watchEffect} from "vue";
-import {IAuthResponse, IRegForm} from "../../../models/UserModels.ts";
+import {IRegForm} from "../../../models/UserModels.ts";
 import {useStore} from "vuex";
-import {AxiosResponse} from "axios"
-import ApiAuth from "../../../api/apiAuth.ts";
 import router from "../../../router/router.ts";
-import {setAuthData} from "../../../services/setAuthData.ts";
-import {setError} from "../../../services/setError.ts";
 
 const data = reactive<IRegForm>({name: '', email: '', password: ''})
 const store = useStore();
 
-const onSubmitReg = async () => {
-  try {
-    const response: AxiosResponse<IAuthResponse> = await ApiAuth.registration(data.name, data.email, data.password);
-    setAuthData(response, true);
-  } catch (e: any) {
-    setError(e.response.data) //TODO: Доработать журнал ошибок
-  }
+const onSubmitReg = () => {
+  store.dispatch('userModule/registration', data)
 }
 
 watchEffect(() => {

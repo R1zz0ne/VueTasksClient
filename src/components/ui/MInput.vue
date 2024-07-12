@@ -4,11 +4,20 @@
       :placeholder="placeholder"
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      :readonly="readonly ? true : false"
+      :class="[readonly ? 'readonly' : '']"
   >
 </template>
 
 <script setup lang="ts">
-defineProps(['placeholder', 'modelValue'])
+
+interface IMInputProps {
+  placeholder?: string,
+  modelValue?: any,
+  readonly?: boolean
+}
+
+const {placeholder, modelValue, readonly} = defineProps<IMInputProps>()
 </script>
 
 <style scoped>
@@ -17,7 +26,8 @@ input {
   border: 1px var(--neutral-500) solid;
   background-color: var(--neutral-100);
   border-radius: 10px;
-  height: 1.5rem;
+  line-height: calc(0.85rem * 1.5);
+  font-size: 0.85rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   color: var(--neutral-700);
@@ -32,5 +42,9 @@ input:focus {
 
 input::placeholder {
   color: var(--neutral-400);
+}
+
+.readonly {
+  background-color: var(--neutral-200);
 }
 </style>

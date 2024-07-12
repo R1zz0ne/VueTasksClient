@@ -9,10 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^8.3.2",
+    "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
-    "vuex": "^4.0.2"
+    "vuedraggable": "^4.1.0",
+    "vuex": "^4.0.2",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

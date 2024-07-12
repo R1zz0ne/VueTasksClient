@@ -6,19 +6,12 @@
 
 <script setup lang="ts">
 import MButton from "../ui/MButton.vue";
-import {AxiosResponse} from "axios";
-import ApiAuth from "../../api/apiAuth.ts";
-import {setAuthData} from "../../services/setAuthData.ts";
-import {setError} from "../../services/setError.ts";
+import {useStore} from "vuex";
 
-const logout = async () => {
-  try {
-    const response: AxiosResponse<any> = await ApiAuth.logout();
-    setAuthData(response, false);
-  } catch (e: any) {
-    setError(e.response.data); //TODO: Доработать журнал ошибок
-  }
+const store = useStore();
 
+const logout = () => {
+  store.dispatch('userModule/logout')
 }
 </script>
 
