@@ -45,12 +45,20 @@ export const UserModule: Module<IUserModuleState, any> = {
             }
         },
         async login({commit}, {email, password}) {
-            const response: AxiosResponse<IAuthResponse> = await ApiAuth.login(email, password);
-            commit('setAuthData', response.data)
+            try {
+                const response: AxiosResponse<IAuthResponse> = await ApiAuth.login(email, password);
+                commit('setAuthData', response.data)
+            } catch (e: any) {
+                setError(e.response.data);
+            }
         },
         async registration({commit}, {name, email, password}) {
-            const response: AxiosResponse<IAuthResponse> = await ApiAuth.registration(name, email, password);
-            commit('setAuthData', response.data)
+            try {
+                const response: AxiosResponse<IAuthResponse> = await ApiAuth.registration(name, email, password);
+                commit('setAuthData', response.data)
+            } catch (e: any) {
+                setError(e.response.data);
+            }
         }
     }
 }

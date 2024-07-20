@@ -1,11 +1,10 @@
 <template>
   <div class="contentConteiner">
-    <div v-if="$route.params.id">
-      <project-view v-if="mode === 'view'" :set-mode="setMode"></project-view>
-      <project-edit v-if="mode === 'edit'" :set-mode="setMode"></project-edit>
+    <div>
+      <project-view v-if="mode === 'view' && $route.params.id" :set-mode="setMode"></project-view>
+      <project-edit v-if="mode === 'edit' && $route.params.id" :set-mode="setMode"></project-edit>
       <project-create v-if="mode === 'create'" :setMode="setMode"></project-create>
     </div>
-    <div v-else></div>
   </div>
 </template>
 

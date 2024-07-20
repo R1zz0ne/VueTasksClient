@@ -36,5 +36,6 @@ const hideDialog = () => {
   border-radius: 12px;
   padding: 12px;
   padding: 0;
+  min-width: 30%;
 }
 </style>
