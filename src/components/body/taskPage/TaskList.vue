@@ -98,10 +98,10 @@ const applyFilter = () => {
 const cleanFilter = () => {
   filter.value.priority = null;
   filter.value.status = null;
-  filterableArray.value = taskModule.taskList;
+  filterableArray.value = convTaskList(taskModule.taskList);
 }
 
-filterableArray.value = taskModule.taskList;
+filterableArray.value = convTaskList(taskModule.taskList);
 
 watchEffect(() => {
   applyFilter()

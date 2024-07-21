@@ -13,7 +13,7 @@
     <m-error-message :errors="errors?.description"/>
     <div class="fieldBlock">
       <label>Приоритет</label>
-      <m-select v-model="form.priority" :elements="taskPriorityMap" type="number"/>
+      <m-select v-model="form.priority" :elements="taskPriorityMap" type="string"/>
     </div>
     <m-error-message :errors="errors?.priority"/>
     <div class="fieldBlock">
@@ -59,7 +59,7 @@ const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
 const form = ref({
   name: "",
   description: "",
-  priority: null,
+  priority: "",
   complation_date: null,
   member: {
     user_id: 0,
@@ -73,9 +73,7 @@ const formSchema = z.object({
       .min(5, "Название должно содержать не менее 5 символов")
       .max(150, "Название должно содержать не более 150 символов"),
   description: z.string().min(1, "Описание обязательно для заполнения"),
-  priority: z.number({invalid_type_error: "Приоритет обязателен для заполнения"})
-      .gte(1, "Приоритет может быть указан в интервале от 1 до 4")
-      .lte(4, "Приоритет может быть указан в интервале от 1 до 4"),
+  priority: z.string().min(1, "Приоритет обязателен для заполнения"),
   complation_date: z.date({invalid_type_error: "Желаемый срок обязателен для заполнения"}),
   member: z.object({
     user_id: z.number().positive("Исполнитель не может быть пустым")

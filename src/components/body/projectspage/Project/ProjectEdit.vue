@@ -6,7 +6,7 @@
     </div>
     <div class="fieldBlock">
       <label>Описание</label>
-      <m-input v-model="localProject.description"></m-input>
+      <m-textarea rows="10" v-model="localProject.description"></m-textarea>
     </div>
     <div class="fieldBlock">
       <label>Владелец</label>
@@ -22,11 +22,12 @@
 <script setup lang="ts">
 import MInput from "../../../ui/MInput.vue";
 import MButton from "../../../ui/MButton.vue";
-import {IProjectProps} from "./Project.vue";
 import MSelectedInput from "../../../ui/MSelectedInputUser.vue";
 import {ref} from "vue";
 import {IUser} from "../../../../models/UserModels.ts";
 import {useStore} from "vuex";
+import MTextarea from "../../../ui/MTextarea.vue";
+import {IProjectProps} from "../../../../models/ProjectModels.ts";
 
 const store = useStore();
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
@@ -83,6 +84,10 @@ const handleUpdate = async () => {
   }
 
   input {
+    width: calc(100% - 145px);
+  }
+
+  div {
     width: calc(100% - 145px);
   }
 }

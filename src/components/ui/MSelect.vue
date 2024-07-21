@@ -1,16 +1,3 @@
-<!--<template>-->
-<!--  <select-->
-<!--      :value="modelValue"-->
-<!--      @input="$emit('update:modelValue', Number(($event.target as HTMLSelectElement).value))"-->
-<!--  >-->
-<!--    <option v-for="element in elements"-->
-<!--            :value="element.id"-->
-<!--            :key="element.id"-->
-<!--    >{{ element.name }}-->
-<!--    </option>-->
-<!--  </select>-->
-<!--</template>-->
-
 <template>
   <select
       :value="modelValue"
@@ -34,6 +21,7 @@ interface ISelectProps {
 const {modelValue, elements, type} = defineProps<ISelectProps>()
 
 const emits = defineEmits(['update:modelValue']);
+
 const onInput = (value: string) => {
   if (type === 'number') {
     emits('update:modelValue', Number(value))

@@ -6,11 +6,7 @@
     </div>
     <div class="fieldBlock">
       <label>Описание</label>
-      <m-input v-model="localProject.description"></m-input> <!-- TODO: Потом поменять на textarea -->
-    </div>
-    <div class="fieldBlock">
-      <label>Описание2</label>
-      <m-textarea rows="10"></m-textarea>
+      <m-textarea rows="10" v-model="localProject.description"></m-textarea>
     </div>
     <div class="fieldBlock">
       <label>Владелец</label>
@@ -65,8 +61,6 @@ const {setMode} = defineProps<Pick<IProjectProps, 'setMode'>>()
 </script>
 
 <style scoped>
-
-
 .fieldBlock {
   position: relative;
   margin: 1rem;

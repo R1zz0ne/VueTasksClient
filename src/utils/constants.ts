@@ -16,16 +16,16 @@ export const datePickerFormat = (date: Date) => {
 }
 
 export enum taskPriorityMap {
-    '1' = "1 - Критический",
-    '2' = '2 - Высокий',
-    '3' = '3 - Средний',
-    '4' = '4 - Низкий'
+    critical = '1 - Критический',
+    high = '2 - Высокий',
+    medium = '3 - Средний',
+    low = '4 - Низкий'
 }
 
 export enum taskStatusMap {
     assigned = 'Назначено',
     in_progress = 'В работе',
-    complited = 'Завершено',
+    complited = 'Завершено'
 }
 
 //Функция для преобразования статуса и приоритета списка задач

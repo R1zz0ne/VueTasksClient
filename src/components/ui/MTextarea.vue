@@ -1,6 +1,8 @@
 <template>
-  <div class="text_area" :style="[rows ? `height: ${2+rows*16}px` : 'height:82px']">
+  <div :class="[disabled && disabled === 'true' ? 'text_area_disabled' : 'text_area_active']"
+       :style="[rows ? `height: ${2+Number(rows)*16}px` : 'height:82px']">
   <textarea
+      :class="[disabled && disabled === 'true' ? 'disabled' : 'active']"
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       :rows="rows ? rows : 5"
@@ -11,15 +13,21 @@
 <script setup lang="ts">
 interface IMTextareaProps {
   modelValue?: any
-  rows?: number
+  rows?: string
+  disabled?: string
 }
 
 const {modelValue, rows} = defineProps<IMTextareaProps>()
+console.log(rows)
 //TODO: есть проблемы со стилями, когда появляется скролл
 </script>
 
 <style scoped>
 textarea {
+  width: 100%;
+}
+
+.active {
   background-color: var(--neutral-100);
   font-size: 0.85rem;
   color: var(--neutral-700);
@@ -32,17 +40,33 @@ textarea {
   padding-right: 0.5rem;
   border: none;
   border: 1px var(--neutral-500) solid;
-  width: 100%;
 }
 
-textarea:focus {
+.active:focus {
   outline: 2px solid var(--primary-500);
   outline-offset: -2px;
 }
 
-.text_area {
+.disabled {
+  background-color: var(--neutral-300);
+  color: #000000;
+  border: none;
+  font-size: 1rem;
+  font-family: "Times New Roman";
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  display: inline-block;
+}
+
+.text_area_active {
   border-radius: 10px;
   overflow: hidden;
   padding: -1px;
+}
+
+.text_area_disabled {
+  border-radius: 0;
+  overflow: hidden;
 }
 </style>

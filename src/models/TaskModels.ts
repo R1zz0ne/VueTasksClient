@@ -1,8 +1,10 @@
+import {taskPriorityMap, taskStatusMap} from "../utils/constants.ts";
+
 export interface ITaskResponse {
     task_id: number,
     name: string,
     description: string,
-    priority: number,
+    priority: ITaskPriorityMap,
     complation_date: object, //Date имеет тип object
     project: {
         project_id: number,
@@ -13,8 +15,11 @@ export interface ITaskResponse {
         name: string,
         email: string
     },
-    status: string
+    status: ITaskStatusMap
 }
+
+export type ITaskStatusMap = keyof typeof taskStatusMap
+export type ITaskPriorityMap = keyof typeof taskPriorityMap
 
 export interface ITaskRequest {
     name: string,

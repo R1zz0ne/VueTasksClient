@@ -6,7 +6,6 @@ import NoContentPage from "../components/body/NoContentPage.vue";
 import ProjectsPage from "../components/body/projectspage/ProjectsPage.vue";
 import Registrationpage from "../components/pages/registrationpage/registrationpage.vue";
 import {useStore} from "vuex";
-import BoardPage_copy from "../components/body/BoardPage_copy.vue";
 import BoardPage from "../components/body/boardPage/BoardPage.vue";
 
 const routes = [
@@ -79,10 +78,6 @@ const routes = [
                         console.log('Произошла ошибка при получении списка проектов (router)') //TODO: закинуть это все в setError
                     }
                 }
-            },
-            {
-                path: 'board_test',
-                component: BoardPage_copy
             }
         ]
     },

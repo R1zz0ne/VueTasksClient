@@ -9,7 +9,7 @@
     </div>
     <div class="fieldBlock">
       <label>Статус</label>
-      <span>{{ taskStatusMap[task.currentTask.status] }}</span> <!--TODO: убрать ошибку -->
+      <span>{{ taskStatusMap[task.currentTask.status as ITaskStatusMap] }}</span>
     </div>
     <div class="fieldBlock">
       <label>Описание</label>
@@ -21,11 +21,11 @@
     </div>
     <div class="fieldBlock">
       <label>Приоритет</label>
-      <span>{{ taskPriorityMap[task.currentTask.priority] }}</span>
+      <span>{{ taskPriorityMap[task.currentTask.priority as ITaskPriorityMap] }}</span>
     </div>
     <div class="fieldBlock">
       <label>Желаемый срок</label>
-      <span>{{ new Date(task.currentTask.complation_date).toLocaleString() }}</span> <!--TODO: убрать ошибку -->
+      <span>{{ new Date(task.currentTask.complation_date).toLocaleString() }}</span>
     </div>
     <div class="fieldBlock">
       <label>Исполнитель</label>
@@ -40,6 +40,7 @@ import {useStore} from "vuex";
 import MButton from "../../../ui/MButton.vue";
 import EditSVG from "../../../ui/svg/EditSVG.vue";
 import {taskPriorityMap, taskStatusMap} from "../../../../utils/constants.ts";
+import {ITaskPriorityMap, ITaskStatusMap} from "../../../../models/TaskModels.ts";
 
 const {setMode} = defineProps<{ setMode: Function }>()
 const task = useStore().state.taskModule;
