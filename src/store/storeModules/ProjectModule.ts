@@ -44,11 +44,12 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
         }
     },
     actions: {
-        async createProjectAC({commit}, object: Omit<IDataForUpdateProject, 'id'>) {
+        async createProjectAC({commit, dispatch}, object: Omit<IDataForUpdateProject, 'id'>) {
             try {
                 const response: AxiosResponse<Omit<IProject, 'tasks'>> = await ApiProjects.createProject(object.name,
                     object.description, object.ownerId);
                 commit('setCurrentProject', {...response.data, tasks: []})
+                dispatch('getProjectListAC')
                 return response.data
             } catch (e) {
                 setError(e)

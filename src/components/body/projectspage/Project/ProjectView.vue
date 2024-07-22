@@ -9,8 +9,12 @@
     </div>
     <div class="fieldBlock">
       <label>Описание</label>
-      <!--      <span>{{ projectStore.currentProject.description }}</span>-->
-      <m-textarea rows="5" v-model="projectStore.currentProject.description" disabled="true"></m-textarea>
+      <span style="display: flex; flex-direction: column">
+        <span v-for="(val, index) in projectStore.currentProject.description.split('\n')"
+              :key="`desc ${index}`"
+
+        >{{ val }}</span>
+      </span>
     </div>
     <div class="fieldBlock">
       <label>Владелец</label>
@@ -66,7 +70,6 @@ import Task from "../../taskPage/Task/Task.vue";
 import EditSVG from "../../../ui/svg/EditSVG.vue";
 import {IProjectProps} from "../../../../models/ProjectModels.ts";
 import {taskPriorityMap} from "../../../../utils/constants.ts";
-import MTextarea from "../../../ui/MTextarea.vue";
 
 const dialogVisible = ref(false);
 const taskInfoVisible = ref(false);
@@ -153,6 +156,10 @@ const getTaskAndVisible = async (taskId: number) => {
   span {
     width: calc(100% - 145px);
     text-align: left;
+
+    span {
+      width: 100%;
+    }
   }
 
   div {

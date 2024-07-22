@@ -18,8 +18,6 @@ interface IMTextareaProps {
 }
 
 const {modelValue, rows} = defineProps<IMTextareaProps>()
-console.log(rows)
-//TODO: есть проблемы со стилями, когда появляется скролл
 </script>
 
 <style scoped>
