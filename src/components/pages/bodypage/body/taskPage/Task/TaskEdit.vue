@@ -48,15 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import MInput from "../../../ui/MInput.vue";
-import MButton from "../../../ui/MButton.vue";
+import MInput from "../../../../../ui/MInput.vue";
+import MButton from "../../../../../ui/MButton.vue";
 import * as z from "zod";
 import {ref, watchEffect} from "vue";
-import MSelectedInput from "../../../ui/MSelectedInputUser.vue";
-import {IUser} from "../../../../models/UserModels.ts";
-import MSelect from "../../../ui/MSelect.vue";
-import MErrorMessage from "../../../ui/MErrorMessage.vue";
-import {datePickerFormat, taskPriorityMap, taskStatusMap} from "../../../../utils/constants.ts";
+import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
+import {IUser} from "../../../../../../models/UserModels.ts";
+import MSelect from "../../../../../ui/MSelect.vue";
+import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
+import {datePickerFormat, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
 import {useStore} from "vuex";
 
 const store = useStore();
@@ -104,7 +104,7 @@ const handleSubmit = async () => {
     errors.value = validSchema.error.format()
   } else {
     errors.value = null;
-    const updateTask = await store.dispatch('taskModule/updateTaskAC', {
+    await store.dispatch('taskModule/updateTaskAC', {
       task_id: form.value.task_id,
       name: form.value.name,
       description: form.value.description,

@@ -20,15 +20,15 @@
 </template>
 
 <script setup lang="ts">
-import MInput from "../../../ui/MInput.vue";
-import MButton from "../../../ui/MButton.vue";
+import MInput from "../../../../../ui/MInput.vue";
+import MButton from "../../../../../ui/MButton.vue";
 import {ref} from "vue";
-import MSelectedInput from "../../../ui/MSelectedInputUser.vue";
-import {IUser} from "../../../../models/UserModels.ts";
+import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
+import {IUser} from "../../../../../../models/UserModels.ts";
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
-import {IProjectProps} from "../../../../models/ProjectModels.ts";
-import MTextarea from "../../../ui/MTextarea.vue";
+import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
+import MTextarea from "../../../../../ui/MTextarea.vue";
 //TODO: сделать через библиотеку форм (валидация формы)
 const store = useStore();
 const router = useRouter();
@@ -46,9 +46,9 @@ const handleCreateProject = async () => {
   const createProject = await store.dispatch('projectModule/createProjectAC', {
     name: localProject.value.name,
     description: localProject.value.description,
-    ownerId: localProject.value.owner.user_id,
+    owner: localProject.value.owner.user_id,
   });
-  router.push(`/projects?id=${createProject.project_id}`)
+  await router.push(`/projects/${createProject.project_id}`)
   setMode('view')
 }
 

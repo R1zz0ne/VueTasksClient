@@ -39,13 +39,13 @@
 import {ref, reactive, onMounted, onBeforeUnmount, watchEffect} from 'vue';
 import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
-import {ITaskList} from '../../../models/TaskModels.ts';
+import {IConvTaskList, ITaskListKey} from '../../../../../models/TaskModels.ts';
 
 const store = useStore();
 const router = useRouter();
-const filterableTaskList = ref<ITaskList[]>([]);
-const columnsName = ["ID", "Название", "Статус", "Приоритет"];
-const columnsValue = ["task_id", "name", "status", "priority"];
+const filterableTaskList = ref<IConvTaskList[]>([]);
+const columnsName: string[] = ["ID", "Название", "Статус", "Приоритет"];
+const columnsValue: ITaskListKey[] = ["task_id", "name", "status", "priority"];
 const columnWidths = reactive([30, 100, 85, 85]);
 const tableWidth = ref(299); // Ширина таблицы для ограничения и скролла
 const wrapperWidth = ref(299);
@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('mouseup', stopResizing);
 });
 
-const props = defineProps<{ path: string, searchString: string, elements: ITaskList[] }>();
+const props = defineProps<{ path: string, searchString: string, elements: IConvTaskList[] }>();
 
 const handleClick = (taskId: number) => {
   router.push(`/${props.path}/${taskId}`);

@@ -20,14 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import MInput from "../../../ui/MInput.vue";
-import MButton from "../../../ui/MButton.vue";
-import MSelectedInput from "../../../ui/MSelectedInputUser.vue";
+import MInput from "../../../../../ui/MInput.vue";
+import MButton from "../../../../../ui/MButton.vue";
+import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
 import {ref} from "vue";
-import {IUser} from "../../../../models/UserModels.ts";
+import {IUser} from "../../../../../../models/UserModels.ts";
 import {useStore} from "vuex";
-import MTextarea from "../../../ui/MTextarea.vue";
-import {IProjectProps} from "../../../../models/ProjectModels.ts";
+import MTextarea from "../../../../../ui/MTextarea.vue";
+import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
 
 const store = useStore();
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
@@ -49,11 +49,11 @@ const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
 
 const handleUpdate = async () => {
   try {
-    const updateProject = await store.dispatch('projectModule/updateProjectAC', {
+    await store.dispatch('projectModule/updateProjectAC', {
       project_id: projectStoreCurrentProject.project_id,
       name: localProject.value.name,
       description: localProject.value.description,
-      ownerId: localProject.value.owner.user_id
+      owner: localProject.value.owner.user_id
     })
     setMode('view');
   } catch (e) {

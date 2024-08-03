@@ -24,11 +24,11 @@
 import MInput from "./MInput.vue";
 import {ref, watchEffect} from "vue";
 import {IUser} from "../../models/UserModels.ts";
-import {AxiosResponse} from "axios";
-import ApiUsers from "../../api/apiUsers.ts";
 import SearchSVG from "./svg/SearchSVG.vue";
 import InfoSVG from "./svg/InfoSVG.vue";
 import {onClickOutside} from "@vueuse/core"
+import SocketEmit from "../../api/socketEmit.ts";
+import {setError} from "../../services/setError.ts";
 
 interface IProps {
   selectUser: {
@@ -67,16 +67,22 @@ const handleClickOutside = () => {
 const selInputRef = ref(null);
 onClickOutside(selInputRef, handleClickOutside)
 
+
 watchEffect(async () => {
-  if (!inputValue.value.trim()) {
-    setSelectUser({user_id: 0, name: ''})
-  } else if (selectUser.name != inputValue.value) {
-    const response: AxiosResponse<IUser[]> = await ApiUsers.getUsers(inputValue.value);
-    resArray.value = response.data;
-  } else {
-    resetValue();
-  }
-})
+      if (!inputValue.value.trim()) {
+        setSelectUser({user_id: 0, name: ''})
+      } else if (selectUser.name !== inputValue.value) {
+        try {
+          const response: IUser[] = await SocketEmit.getUsersEmit({query: inputValue.value})
+          resArray.value = response
+        } catch (e) {
+          setError(e)
+        }
+      } else {
+        resetValue();
+      }
+    }
+)
 </script>
 
 <style scoped>

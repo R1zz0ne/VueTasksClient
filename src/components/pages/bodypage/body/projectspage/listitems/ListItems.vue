@@ -12,15 +12,14 @@
 
 <script setup lang="ts">
 import {useStore} from "vuex";
-import router from "../../../../router/router.ts";
+import router from "../../../../../../router/router.ts";
 import {ref, watchEffect} from "vue";
-import {IProjectList} from "../../../../models/ProjectModels.ts";
+import {IProjectList} from "../../../../../../models/ProjectModels.ts";
 
 const store = useStore();
 const projectStore = store.state.projectModule;
 const filtrableProjectList = ref([] as IProjectList[]);
 
-// const {path, searchString} = defineProps<{ path: string, searchString: string }>();
 const props = defineProps<{ path: string, searchString: string }>();
 const handleClick = (projectId: number) => {
   router.push(`/${props.path}/${projectId}`);

@@ -37,10 +37,10 @@
 
 <script setup lang="ts">
 import {useStore} from "vuex";
-import MButton from "../../../ui/MButton.vue";
-import EditSVG from "../../../ui/svg/EditSVG.vue";
-import {taskPriorityMap, taskStatusMap} from "../../../../utils/constants.ts";
-import {ITaskPriorityMap, ITaskStatusMap} from "../../../../models/TaskModels.ts";
+import MButton from "../../../../../ui/MButton.vue";
+import EditSVG from "../../../../../ui/svg/EditSVG.vue";
+import {taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
+import {ITaskPriorityMap, ITaskStatusMap} from "../../../../../../models/TaskModels.ts";
 
 const {setMode} = defineProps<{ setMode: Function }>()
 const task = useStore().state.taskModule;

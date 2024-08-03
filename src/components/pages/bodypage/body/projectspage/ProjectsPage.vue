@@ -15,9 +15,9 @@
 <script setup lang="ts">
 import ListItems from "./listitems/ListItems.vue";
 import {ref} from "vue";
-import MButton from "../../ui/MButton.vue";
-import MInput from "../../ui/MInput.vue";
 import Project from "./Project/Project.vue";
+import MInput from "../../../../ui/MInput.vue";
+import MButton from "../../../../ui/MButton.vue";
 
 const mode = ref("view");
 const searchInput = ref("");

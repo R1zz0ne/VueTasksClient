@@ -1,8 +1,7 @@
 import {Module} from "vuex";
-import {IAuthResponse, IUserModuleState} from "../../models/UserModels.ts";
-import {AxiosResponse} from "axios";
-import ApiAuth from "../../api/apiAuth.ts";
+import {IAuthForm, IAuthResponse, IRegForm, IUserModuleState} from "../../models/UserModels.ts";
 import {setError} from "../../services/setError.ts";
+import SocketEmit from "../../api/socketEmit.ts";
 
 export const UserModule: Module<IUserModuleState, any> = {
     namespaced: true,
@@ -18,11 +17,13 @@ export const UserModule: Module<IUserModuleState, any> = {
     mutations: {
         setAuthData(state, user: IAuthResponse) {
             localStorage.setItem('token', user.accessToken);
+            localStorage.setItem('refresh', user.refreshToken);
             state.user = user.user;
             state.isAuth = true;
         },
         removeAuthDate(state) {
             localStorage.removeItem('token');
+            localStorage.removeItem('refresh')
             state.user = {user_id: 0, name: '', email: ''};
             state.isAuth = false;
         }
@@ -30,34 +31,34 @@ export const UserModule: Module<IUserModuleState, any> = {
     actions: {
         async refreshAuth({commit}) {
             try {
-                const response: AxiosResponse<IAuthResponse> = await ApiAuth.refresh();
-                commit('setAuthData', response.data)
+                const response: IRegForm = await SocketEmit.refreshEmit({refreshToken: localStorage.getItem('refresh')})
+                commit('setAuthData', response)
             } catch (e: any) {
-                setError(e.response.data);
+                setError(e);
             }
         },
         async logout({commit}) {
             try {
-                await ApiAuth.logout();
+                await SocketEmit.logoutEmit({refreshToken: localStorage.getItem('refresh')});
                 commit('removeAuthDate');
             } catch (e: any) {
-                setError(e.response.data);
+                setError(e);
             }
         },
-        async login({commit}, {email, password}) {
+        async login({commit}, data: IAuthForm) {
             try {
-                const response: AxiosResponse<IAuthResponse> = await ApiAuth.login(email, password);
-                commit('setAuthData', response.data)
+                const response: IAuthResponse = await SocketEmit.loginEmit(data);
+                commit('setAuthData', response)
             } catch (e: any) {
-                setError(e.response.data);
+                setError(e);
             }
         },
-        async registration({commit}, {name, email, password}) {
+        async registration({commit}, data: IRegForm) {
             try {
-                const response: AxiosResponse<IAuthResponse> = await ApiAuth.registration(name, email, password);
-                commit('setAuthData', response.data)
+                const response: IAuthResponse = await SocketEmit.registrationEmit(data)
+                commit('setAuthData', response)
             } catch (e: any) {
-                setError(e.response.data);
+                setError(e);
             }
         }
     }

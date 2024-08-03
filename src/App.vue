@@ -4,7 +4,7 @@ import ErrorSnackbar from "./components/ui/NotificationSnackbar.vue";
 import {useStore} from "vuex";
 
 onMounted(() => {
-  if (localStorage.getItem('token')) {
+  if (localStorage.getItem('refresh')) {
     useStore().dispatch('userModule/refreshAuth')
   }
 })

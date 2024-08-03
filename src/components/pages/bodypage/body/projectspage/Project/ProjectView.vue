@@ -60,16 +60,16 @@
 </template>
 
 <script setup lang="ts">
-import MButton from "../../../ui/MButton.vue";
+import MButton from "../../../../../ui/MButton.vue";
 import {useStore} from "vuex";
-import MDialog from "../../../ui/MDialog.vue";
+import MDialog from "../../../../../ui/MDialog.vue";
 import {ref} from "vue";
 import TaskCreate from "../../taskPage/Task/TaskCreate.vue";
-import MLink from "../../../ui/MLink.vue";
+import MLink from "../../../../../ui/MLink.vue";
 import Task from "../../taskPage/Task/Task.vue";
-import EditSVG from "../../../ui/svg/EditSVG.vue";
-import {IProjectProps} from "../../../../models/ProjectModels.ts";
-import {taskPriorityMap} from "../../../../utils/constants.ts";
+import EditSVG from "../../../../../ui/svg/EditSVG.vue";
+import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
+import {taskPriorityMap} from "../../../../../../utils/constants.ts"; //TODO: посмотреть можно ли сделать импорт не через относительные пути
 
 const dialogVisible = ref(false);
 const taskInfoVisible = ref(false);
@@ -85,7 +85,7 @@ const changeTaskInfoVisible = (value: boolean) => {
   taskInfoVisible.value = value;
 }
 const getTaskAndVisible = async (taskId: number) => {
-  store.dispatch('taskModule/getTaskAC', taskId);
+  await store.dispatch('taskModule/getTaskAC', taskId);
   changeTaskInfoVisible(true);
 }
 </script>

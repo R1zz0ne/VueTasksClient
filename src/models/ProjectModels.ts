@@ -10,7 +10,7 @@ export interface IProjectList extends Pick<IProject, 'project_id' | 'name'> {
 }
 
 export interface IDataForUpdateProject extends Omit<IProject, 'tasks' | 'owner'> {
-    ownerId: number
+    owner: number
 }
 
 export interface IProject {
@@ -24,4 +24,10 @@ export interface IProject {
 export interface IProjectProps {
     mode: string,
     setMode: Function
+}
+
+export interface ICreateProjectEmit {
+    name: string,
+    description: string,
+    owner: number
 }

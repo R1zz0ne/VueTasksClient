@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import MInput from "../../ui/MInput.vue";
+import MInput from "../../../../ui/MInput.vue";
 import ListItems from "../projectspage/listitems/ListItems.vue";
 import {ref} from "vue";
 

@@ -28,8 +28,8 @@
       <span>Завершено</span>
       <div class="drag-container"
            @dragover="onDragOver"
-           @drop="onDrop('complited')">
-        <div v-for="task in columns.complited" :key="task.task_id" class="draggable-item"
+           @drop="onDrop('completed')">
+        <div v-for="task in columns.completed" :key="task.task_id" class="draggable-item"
              :draggable="true"
              @dragstart="onDragStart(task)">
           {{ task.name }}
@@ -43,14 +43,14 @@
 <script setup lang="ts">
 import {ref, watchEffect} from "vue";
 import {useStore} from "vuex";
-import {ITaskShort} from "../../../models/TaskModels.ts";
+import {ITaskShort} from "../../../../../models/TaskModels.ts";
 
 const store = useStore();
 
 const columns = ref({
   assigned: [] as ITaskShort[],
   in_progress: [] as ITaskShort[],
-  complited: [] as ITaskShort[]
+  completed: [] as ITaskShort[]
 })
 
 let draggedTaskID: number | null = null;
@@ -70,7 +70,7 @@ const onDrop = (targetStatus: string) => {
 const updateColumns = (tasksArray: ITaskShort[]) => {
   columns.value.assigned = [];
   columns.value.in_progress = [];
-  columns.value.complited = [];
+  columns.value.completed = [];
 
   tasksArray.forEach((task) => {
     switch (task.status) {
@@ -80,8 +80,8 @@ const updateColumns = (tasksArray: ITaskShort[]) => {
       case 'in_progress':
         columns.value.in_progress.push(task);
         break;
-      case 'complited':
-        columns.value.complited.push(task);
+      case 'completed':
+        columns.value.completed.push(task);
         break;
     }
   })

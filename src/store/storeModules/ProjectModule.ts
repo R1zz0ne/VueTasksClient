@@ -1,11 +1,14 @@
 import {Module} from "vuex";
-import ApiProjects from "../../api/apiProjects.ts";
-import {AxiosResponse} from "axios";
 import {setError} from "../../services/setError.ts";
-import {IDataForUpdateProject, IProject, IProjectList, IProjectModuleState} from "../../models/ProjectModels.ts";
+import {
+    ICreateProjectEmit, IDataForUpdateProject,
+    IProject,
+    IProjectList,
+    IProjectModuleState
+} from "../../models/ProjectModels.ts";
 import {ITaskRequest, ITaskRequestUpdStatus, ITaskResponse} from "../../models/TaskModels.ts";
-import ApiTasks from "../../api/apiTasks.ts";
 import {setNotification} from "../../services/setNotification.ts";
+import SocketEmit from "../../api/socketEmit.ts";
 
 export const ProjectModule: Module<IProjectModuleState, any> = {
     namespaced: true,
@@ -44,56 +47,54 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
         }
     },
     actions: {
-        async createProjectAC({commit, dispatch}, object: Omit<IDataForUpdateProject, 'id'>) {
+        async createProjectAC({commit, dispatch}, data: ICreateProjectEmit) {
             try {
-                const response: AxiosResponse<Omit<IProject, 'tasks'>> = await ApiProjects.createProject(object.name,
-                    object.description, object.ownerId);
-                commit('setCurrentProject', {...response.data, tasks: []})
+                const response: IProject = await SocketEmit.createProjectEmit(data)
+                commit('setCurrentProject', {...response})
                 dispatch('getProjectListAC')
-                return response.data
+                return response
             } catch (e) {
                 setError(e)
-                // throw e
             }
         },
-        async updateProjectAC({commit}, object: IDataForUpdateProject) {
+        async updateProjectAC({commit}, data: IDataForUpdateProject) {
             try {
-                const response: AxiosResponse<Omit<IProject, 'tasks'>> = await ApiProjects.updateProject(object.project_id,
-                    object.name, object.description, object.ownerId);
-                commit('setCurrentProject', {...response.data})
-                return response.data
+                console.log(data)
+                const response: Omit<IProject, 'tasks'> = await SocketEmit.updateProjectEmit(data)
+                commit('setCurrentProject', {...response})
+                return response
             } catch (e) {
                 setError(e)
             }
         },
         async getProjectListAC({commit}) {
             try {
-                const response: AxiosResponse<IProjectList[]> = await ApiProjects.getProjectList();
-                commit('setProjectList', response.data)
+                const response: IProjectList[] = await SocketEmit.getProjectListEmit();
+                commit('setProjectList', response)
             } catch (e) {
                 setError(e)
             }
         },
         async getProjectAC({commit}, projectId: number) {
             try {
-                const response: AxiosResponse = await ApiProjects.getProject(projectId);
-                commit('setCurrentProject', response.data);
+                const response: IProject = await SocketEmit.getProjectEmit({projectId});
+                commit('setCurrentProject', response);
             } catch (e) {
                 setError(e)
             }
         },
-        async createTaskAC({commit}, taskObj: ITaskRequest) {
+        async createTaskAC({commit}, data: ITaskRequest) {
             try {
-                const response: AxiosResponse<ITaskResponse> = await ApiTasks.createTask(taskObj);
-                commit('setTaskInCurrentProject', response.data)
+                const response: ITaskResponse = await SocketEmit.createTaskEmit(data);
+                commit('setTaskInCurrentProject', response)
             } catch (e) {
                 setError(e);
             }
         },
-        async updateStatusTaskAC({commit}, taskObj: ITaskRequestUpdStatus) {
+        async updateStatusTaskAC({commit}, data: ITaskRequestUpdStatus) {
             try {
-                const response: AxiosResponse<ITaskRequestUpdStatus> = await ApiTasks.updateStatusTask(taskObj);
-                commit('updateStatusTask', response.data)
+                const response: ITaskRequestUpdStatus = await SocketEmit.updateStatusTaskEmit(data);
+                commit('updateStatusTask', response)
             } catch (e) {
                 setError(e)
             }

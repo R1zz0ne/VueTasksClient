@@ -12,6 +12,7 @@
     "@vuepic/vue-datepicker": "^8.3.2",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
+    "socket.io-client": "^4.7.5",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0",

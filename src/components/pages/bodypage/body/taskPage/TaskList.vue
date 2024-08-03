@@ -12,7 +12,7 @@
             </div>
             <div class="filter-row">
               <div>Приоритет</div>
-              <m-select :elements="taskPriorityMap" v-model="filter.priority" type="number"/>
+              <m-select :elements="taskPriorityMap" v-model="filter.priority" type="string"/>
             </div>
             <div class="btn-block">
               <m-button type="danger" @click="cleanFilter">Сброс</m-button>
@@ -30,8 +30,8 @@
         </div>
         <div
             class="tab-item"
-            :class="[taskListMode === 'complited' ? 'tab-item-act' : '']"
-            @click="setTaskListMode('complited')"
+            :class="[taskListMode === 'completed' ? 'tab-item-act' : '']"
+            @click="setTaskListMode('completed')"
         >Завершенные
         </div>
       </div>
@@ -42,30 +42,30 @@
 </template>
 
 <script setup lang="ts">
-import MInput from "../../ui/MInput.vue";
+import MInput from "../../../../ui/MInput.vue";
 import TaskListItems from "./TaskListItems.vue";
-import {ref, watchEffect} from "vue";
-import MButton from "../../ui/MButton.vue";
-import MSelect from "../../ui/MSelect.vue";
-import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../utils/constants.ts";
+import {Ref, ref, watchEffect} from "vue";
+import MButton from "../../../../ui/MButton.vue";
+import MSelect from "../../../../ui/MSelect.vue";
+import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../../../utils/constants.ts";
 import {useStore} from "vuex";
-import {ITaskList} from "../../../models/TaskModels.ts";
+import {IConvTaskList, ITaskList, ITaskListFilter} from "../../../../../models/TaskModels.ts";
 
 const store = useStore();
 
 const searchString = ref("")
 const visibleFilter = ref(false);
-const filter = ref({
+const filter: Ref<ITaskListFilter> = ref({
   status: null,
   priority: null
 })
-const filterableArray = ref([] as ITaskList[])
+const filterableArray = ref([] as IConvTaskList[])
 const taskListMode = ref("active");
 
-const setTaskListMode = async (value: 'active' | 'complited') => {
+const setTaskListMode = async (value: 'active' | 'completed') => {
   if (value === 'active' && taskListMode.value !== 'active') {
     await store.dispatch('taskModule/getTaskListAC')
-  } else if (value === 'complited' && taskListMode.value !== 'complited') {
+  } else if (value === 'completed' && taskListMode.value !== 'completed') {
     await store.dispatch('taskModule/getCloseTaskListAC')
   }
   taskListMode.value = value;
@@ -80,8 +80,8 @@ const taskModule = useStore().state.taskModule;
 const applyFilter = () => {
   const isStatus: boolean = filter.value.status !== null;
   const isPriority: boolean = filter.value.priority !== null;
-  const taskList = taskModule.taskList;
-  let array: any[] = taskList;
+  const taskList: ITaskList[] = taskModule.taskList;
+  let array: ITaskList[] = taskList;
   if (isStatus || isPriority) {
     if (isStatus) {
       array = array.filter((el) => el.status === filter.value.status)

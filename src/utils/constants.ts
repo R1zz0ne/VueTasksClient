@@ -25,7 +25,7 @@ export enum taskPriorityMap {
 export enum taskStatusMap {
     assigned = 'Назначено',
     in_progress = 'В работе',
-    complited = 'Завершено'
+    completed = 'Завершено'
 }
 
 //Функция для преобразования статуса и приоритета списка задач

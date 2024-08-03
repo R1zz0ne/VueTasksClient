@@ -1,8 +1,7 @@
 import {Module} from "vuex";
 import {ITaskList, ITaskModuleState, ITaskResponse, ITaskUpdateRequest} from "../../models/TaskModels.ts";
-import {AxiosResponse} from "axios";
-import ApiTasks from "../../api/apiTasks.ts";
 import {setError} from "../../services/setError.ts";
+import SocketEmit from "../../api/socketEmit.ts";
 
 export const TaskModule: Module<ITaskModuleState, any> = {
     namespaced: true,
@@ -35,33 +34,33 @@ export const TaskModule: Module<ITaskModuleState, any> = {
     actions: {
         async getTaskAC({commit}, taskId: number) {
             try {
-                const response: AxiosResponse<ITaskResponse> = await ApiTasks.getTaskInfo(taskId);
-                commit('setCurrentTask', response.data);
+                const response: ITaskResponse = await SocketEmit.getTaskEmit({taskId})
+                commit('setCurrentTask', response);
             } catch (e) {
                 setError(e)
             }
         },
-        async updateTaskAC({commit}, task: ITaskUpdateRequest) {
+        async updateTaskAC({commit}, data: ITaskUpdateRequest) {
             try {
-                const response: AxiosResponse<ITaskResponse> = await ApiTasks.updateTask(task);
-                commit('updateTask', response.data)
-                commit('updateTaskInfoInList', response.data)
+                const response: ITaskResponse = await SocketEmit.updateTaskEmit(data);
+                commit('updateTask', response)
+                commit('updateTaskInfoInList', response)
             } catch (e) {
                 setError(e)
             }
         },
         async getTaskListAC({commit}) {
             try {
-                const response: AxiosResponse<ITaskList[]> = await ApiTasks.getMyTaskList();
-                commit('setTaskList', response.data)
+                const response: ITaskList[] = await SocketEmit.getTaskListEmit();
+                commit('setTaskList', response)
             } catch (e) {
                 setError(e)
             }
         },
         async getCloseTaskListAC({commit}) {
             try {
-                const response: AxiosResponse<ITaskList[]> = await ApiTasks.getClosemyTaskList();
-                commit('setTaskList', response.data)
+                const response: ITaskList[] = await SocketEmit.getCloseTaskListEmit();
+                commit('setTaskList', response)
             } catch (e) {
                 setError(e)
             }

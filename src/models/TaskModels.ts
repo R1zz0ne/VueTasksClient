@@ -24,7 +24,7 @@ export type ITaskPriorityMap = keyof typeof taskPriorityMap
 export interface ITaskRequest {
     name: string,
     description: string,
-    priority: number,
+    priority: ITaskPriorityMap,
     complation_date: object,
     project_id: number,
     member: number
@@ -47,4 +47,19 @@ export interface ITaskUpdateRequest extends ITaskRequest {
     task_id: number
 }
 
-export interface ITaskList extends Pick<ITaskResponse, 'task_id' | 'name' | 'priority' | 'status'> {}
+export interface ITaskList extends Pick<ITaskResponse, 'task_id' | 'name' | 'priority' | 'status'> {
+}
+
+export interface IConvTaskList {
+    task_id: number,
+    name: string,
+    priority: string,
+    status: string
+}
+
+export type ITaskListKey = keyof IConvTaskList
+
+export interface ITaskListFilter {
+    status: ITaskStatusMap | null,
+    priority: ITaskPriorityMap | null
+}

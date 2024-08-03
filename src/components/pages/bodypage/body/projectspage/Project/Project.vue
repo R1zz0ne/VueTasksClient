@@ -12,7 +12,7 @@
 import ProjectView from "./ProjectView.vue";
 import ProjectEdit from "./ProjectEdit.vue";
 import ProjectCreate from "./ProjectCreate.vue";
-import {IProjectProps} from "../../../../models/ProjectModels.ts";
+import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
 
 const {mode, setMode} = defineProps<IProjectProps>();
 </script>
