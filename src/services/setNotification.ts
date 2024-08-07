@@ -1,8 +1,8 @@
 import {store} from "../store/store.ts"
-import {INotification} from "../models/NotificationModels.ts";
+import {IActionNotification} from "../models/NotificationModels.ts";
 
-export function setNotification(notificationObj: Pick<INotification, 'message' | 'type'>) {
-    store.commit('notificationModule/setNotification', {
+export function setNotification(notificationObj: Pick<IActionNotification, 'message' | 'type'>) {
+    store.commit('notificationModule/setActionNotification', {
         ...notificationObj
     })
 }

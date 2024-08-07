@@ -1,8 +1,15 @@
 import {io} from "socket.io-client";
-import {IAuthForm, IRegForm} from "../models/UserModels.ts";
+import {IAuthForm, IAuthResponse, IRegForm} from "../models/UserModels.ts";
 import {ICreateProjectEmit, IDataForUpdateProject} from "../models/ProjectModels.ts";
 import {ITaskRequest, ITaskRequestUpdStatus, ITaskUpdateRequest} from "../models/TaskModels.ts";
+import {useStore} from "vuex";
 
+
+/*TODO: сейчас есть проблема с тем, что когда токен истекает и выполняется refresh, то в текущем экземпляре socket
+   нельза переопределить заголовки. При выполнении refresh и получении нового токена необходимо создавать новый
+   экземпляр класса
+   //Возможно есть какое-то другое решение, я пока что его не нашел
+ */
 class SocketEmit {
     socket = io('ws://localhost:5000', {
         extraHeaders: {
@@ -10,10 +17,19 @@ class SocketEmit {
         }
     })
 
-    async #createPromiseEmit(event: string, data: any): Promise<any> {
+    async #createPromiseEmit(event: string, data: any, isRetry = false): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.socket.emit(event, data, (response: any) => {
-                if (response.type === 'error') {
+            this.socket.emit(event, data, async (response: any) => {
+                if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) {
+                    try {
+                        const response: IAuthResponse = await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
+                        useStore().commit('userModule/setAuthData', response)
+                        const retryResponse = await this.#createPromiseEmit(event, data, true)
+                        resolve(retryResponse);
+                    } catch (e) {
+                        reject(e);
+                    }
+                } else if (response.type === 'error' && response.message !== 'Пользователь не авторизован') {
                     reject(response);
                 } else {
                     resolve(response);
@@ -82,6 +98,11 @@ class SocketEmit {
 
     async getCloseTaskListEmit(): Promise<any> {
         return await this.#createPromiseEmit('getCloseTaskList', null);
+    }
+
+    //notification
+    getNotificationLogEmit() {
+        this.socket.emit('getNotification', null);
     }
 }
 

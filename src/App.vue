@@ -2,10 +2,12 @@
 import {onMounted} from "vue";
 import ErrorSnackbar from "./components/ui/NotificationSnackbar.vue";
 import {useStore} from "vuex";
+import SocketEmit from "./api/socketEmit.ts";
 
-onMounted(() => {
+onMounted(async () => {
   if (localStorage.getItem('refresh')) {
-    useStore().dispatch('userModule/refreshAuth')
+    await useStore().dispatch('userModule/refreshAuth')
+    SocketEmit.getNotificationLogEmit()
   }
 })
 </script>

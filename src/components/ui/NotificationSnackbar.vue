@@ -14,9 +14,9 @@ const text = ref('');
 const type = ref('');
 
 watchEffect(() => {
-  if (store.notifications.length > 0) {
-    text.value = store.notifications.at(-1).message;
-    type.value = store.notifications.at(-1).type;
+  if (store.actionNotifications.length > 0) {
+    text.value = store.actionNotifications.at(-1).message;
+    type.value = store.actionNotifications.at(-1).type;
     showSnackbar()
   }
 })
