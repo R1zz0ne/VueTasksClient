@@ -39,7 +39,8 @@ watchEffect(() => {
   padding: 10px;
 }
 .nav {
-  background-color: var(--neutral-400);
+  background-color: var(--neutral-300);
+  border-right: 1px solid var(--neutral-400);
   display: flex;
   justify-content: center;
 }

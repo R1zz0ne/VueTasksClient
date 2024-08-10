@@ -22,6 +22,7 @@ li {
 }
 
 .active {
-  box-shadow: 2px 2px var(--primary-700);
+  background-color: var(--neutral-400);
+  color: var(--primary-700);
 }
 </style>

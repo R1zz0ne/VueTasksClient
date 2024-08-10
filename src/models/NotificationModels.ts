@@ -5,7 +5,6 @@ export interface INotificationsModuleState {
 
 export interface IActionNotification {
     message: string,
-    isChecked: boolean,
     type: 'error' | 'info' | 'success' | 'warning'
 }
 
@@ -14,6 +13,6 @@ export interface INotificationsLog {
     task_id: number,
     name: string,
     message: string,
-    isChecked: boolean,
+    is_checked: boolean,
     created_at: Object,
 }

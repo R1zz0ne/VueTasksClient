@@ -104,6 +104,10 @@ class SocketEmit {
     getNotificationLogEmit() {
         this.socket.emit('getNotification', null);
     }
+
+    async checkNotificationEmit(notification_id: number): Promise<any> {
+        return await this.#createPromiseEmit('checkNotification', {notification_id});
+    }
 }
 
 export default new SocketEmit();

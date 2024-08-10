@@ -1,18 +1,18 @@
 <template>
   <div class="not_log_item">
     <div class="status-indicator">
-      <circle-s-v-g v-if="!is_checked" title="Test"/>
+      <circle-s-v-g v-if="!props.is_checked" title="Отметить как прочитанное" @click="handleCheckNotification(props.notification_id)"/>
     </div>
     <div class="line_content">
       <div class="head">
         <div>#{{ props.task_id }}</div>
         <div>{{ props.name }}</div>
-        <div>- {{notification_id}}</div>
+        <div>- {{ props.notification_id }}</div>
       </div>
       <div class="message">{{ props.message }}</div>
     </div>
     <div class="time_info">
-      {{new Date(props.created_at).toLocaleString()}}
+      {{ new Date(props.created_at).toLocaleString() }}
     </div>
   </div>
 </template>
@@ -26,9 +26,9 @@ const props = defineProps<{
   message: string,
   is_checked: boolean,
   notification_id: number,
-  created_at: any
+  created_at: any,
+  handleCheckNotification: Function
 }>();
-console.log(props)
 </script>
 
 <style scoped>

@@ -45,15 +45,15 @@
                     :id="task.task_id"
                     object="task">{{ task.name }}
             </m-link>
-            <m-dialog v-model:show="taskInfoVisible">
-              <task :change-task-info-visible="changeTaskInfoVisible"/>
-            </m-dialog>
           </td>
           <td>{{ taskPriorityMap[task.priority] }}</td>
           <td>{{ new Date(task.complation_date).toLocaleString() }}</td>
           <td :title="task.member.email">{{ task.member.name }}</td>
         </tr>
       </table>
+      <m-dialog v-model:show="taskInfoVisible">
+        <task :change-task-info-visible="changeTaskInfoVisible"/>
+      </m-dialog>
     </div>
   </div>
   <div class="itemContent" v-else></div>
