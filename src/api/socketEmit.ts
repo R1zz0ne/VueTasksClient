@@ -2,19 +2,13 @@ import {io} from "socket.io-client";
 import {IAuthForm, IAuthResponse, IRegForm} from "../models/UserModels.ts";
 import {ICreateProjectEmit, IDataForUpdateProject} from "../models/ProjectModels.ts";
 import {ITaskRequest, ITaskRequestUpdStatus, ITaskUpdateRequest} from "../models/TaskModels.ts";
-import {useStore} from "vuex";
 
 
-/*TODO: сейчас есть проблема с тем, что когда токен истекает и выполняется refresh, то в текущем экземпляре socket
-   нельза переопределить заголовки. При выполнении refresh и получении нового токена необходимо создавать новый
-   экземпляр класса
-   //Возможно есть какое-то другое решение, я пока что его не нашел
- */
 class SocketEmit {
     socket = io('ws://localhost:5000', {
-        extraHeaders: {
+        auth: {
             accessToken: localStorage.getItem('token') as string
-        }
+        },
     })
 
     async #createPromiseEmit(event: string, data: any, isRetry = false): Promise<any> {
@@ -22,8 +16,7 @@ class SocketEmit {
             this.socket.emit(event, data, async (response: any) => {
                 if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) {
                     try {
-                        const response: IAuthResponse = await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
-                        useStore().commit('userModule/setAuthData', response)
+                        await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
                         const retryResponse = await this.#createPromiseEmit(event, data, true)
                         resolve(retryResponse);
                     } catch (e) {
@@ -51,7 +44,10 @@ class SocketEmit {
     }
 
     async refreshEmit(data: { refreshToken: string | null }): Promise<any> {
-        return await this.#createPromiseEmit('refresh', data);
+        const response = await this.#createPromiseEmit('refresh', data);
+        (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
+        this.socket.disconnect().connect();
+        return response
     }
 
     async getUsersEmit(data: { query: string }): Promise<any> {

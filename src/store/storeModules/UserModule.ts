@@ -31,7 +31,7 @@ export const UserModule: Module<IUserModuleState, any> = {
     actions: {
         async refreshAuth({commit}) {
             try {
-                const response: IRegForm = await SocketEmit.refreshEmit({refreshToken: localStorage.getItem('refresh')})
+                const response: IAuthResponse = await SocketEmit.refreshEmit({refreshToken: localStorage.getItem('refresh')})
                 commit('setAuthData', response)
             } catch (e: any) {
                 setError(e);
