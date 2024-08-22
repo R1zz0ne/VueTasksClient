@@ -1,7 +1,7 @@
 import {io} from "socket.io-client";
 import {IAuthForm, IAuthResponse, IRegForm} from "../models/UserModels.ts";
-import {ICreateProjectEmit, IDataForUpdateProject} from "../models/ProjectModels.ts";
-import {ITaskRequest, ITaskRequestUpdStatus, ITaskUpdateRequest} from "../models/TaskModels.ts";
+import {ICreateProjectEmit, IDataForUpdateProject, IProjectUpdateEditor} from "../models/ProjectModels.ts";
+import {ITaskRequest, ITaskRequestUpdStatus, ITaskUpdateEditor, ITaskUpdateRequest} from "../models/TaskModels.ts";
 
 
 class SocketEmit {
@@ -59,8 +59,8 @@ class SocketEmit {
         return await this.#createPromiseEmit('createProject', data);
     }
 
-    async updateProjectEmit(data: IDataForUpdateProject): Promise<any> {
-        return await this.#createPromiseEmit('updateProject', data);
+    updateProjectEmit(data: IDataForUpdateProject): void {
+        this.socket.emit('updateProject', data);
     }
 
     async getProjectListEmit(): Promise<any> {
@@ -71,12 +71,16 @@ class SocketEmit {
         return await this.#createPromiseEmit('getProject', data);
     }
 
-    async createTaskEmit(data: ITaskRequest): Promise<any> {
-        return await this.#createPromiseEmit('createTask', data);
+    createTaskEmit(data: ITaskRequest): void {
+        this.socket.emit('createTask', data)
     }
 
-    async updateStatusTaskEmit(data: ITaskRequestUpdStatus): Promise<any> {
-        return await this.#createPromiseEmit('updateStatusTask', data);
+    updateStatusTaskEmit(data: ITaskRequestUpdStatus): void {
+        this.socket.emit('updateStatusTask', data);
+    }
+
+    updateProjectEditor(data: IProjectUpdateEditor): void {
+        this.socket.emit('updateProjectEditor', data);
     }
 
     //tasks
@@ -84,8 +88,12 @@ class SocketEmit {
         return await this.#createPromiseEmit('getTask', data);
     }
 
-    async updateTaskEmit(data: ITaskUpdateRequest): Promise<any> {
-        return await this.#createPromiseEmit('updateTask', data);
+    updateTaskEmit(data: ITaskUpdateRequest): void {
+        this.socket.emit('updateTask', data)
+    }
+
+    updateTaskEditor(data: ITaskUpdateEditor): void {
+        this.socket.emit('updateTaskEditor', data);
     }
 
     async getTaskListEmit(): Promise<any> {
@@ -103,6 +111,15 @@ class SocketEmit {
 
     async checkNotificationEmit(notification_id: number): Promise<any> {
         return await this.#createPromiseEmit('checkNotification', {notification_id});
+    }
+
+    //Room
+    joinRoom(data: { type: string, id?: number }): void {
+        this.socket.emit('joinRoom', data);
+    }
+
+    leaveRoom(data: { type: string, id?: number }): void {
+        this.socket.emit('leaveRoom', data);
     }
 }
 

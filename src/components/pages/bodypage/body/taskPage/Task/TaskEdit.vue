@@ -1,6 +1,6 @@
 <template>
-  <form class="formCreateTask">
-    <span class="title">Редактирование задачи</span>
+  <form class="formEditTask">
+    <span class="title">Редактирование задачи # {{ form.task_id}}</span>
     <div class="fieldBlock">
       <label>Название</label>
       <m-input v-model="form.name"></m-input>
@@ -44,6 +44,7 @@
       <m-button @click.prevent="handleCancel" type="danger">Отмена</m-button>
       <m-button @click.prevent="handleSubmit" type="success">Сохранить</m-button>
     </div>
+    <record-footer :viewers="store.state.taskModule.taskRoom" :editor="store.state.taskModule.currentTask.editor"/>
   </form>
 </template>
 
@@ -58,6 +59,8 @@ import MSelect from "../../../../../ui/MSelect.vue";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
 import {datePickerFormat, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
 import {useStore} from "vuex";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
+import RecordFooter from "../../RecordFooter.vue";
 
 const store = useStore();
 const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
@@ -104,7 +107,7 @@ const handleSubmit = async () => {
     errors.value = validSchema.error.format()
   } else {
     errors.value = null;
-    await store.dispatch('taskModule/updateTaskAC', {
+    SocketEmit.updateTaskEmit({
       task_id: form.value.task_id,
       name: form.value.name,
       description: form.value.description,
@@ -113,7 +116,7 @@ const handleSubmit = async () => {
       project_id: form.value.project.project_id,
       member: form.value.member.user_id,
       status: form.value.status
-    });
+    })
     setMode('view');
   }
   isTrySubmit.value = true;
@@ -139,7 +142,7 @@ watchEffect(() => {
 
 .fieldBlock {
   position: relative;
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
   display: flex;
   gap: 5px;
   align-items: center;
@@ -166,9 +169,13 @@ watchEffect(() => {
   display: inline-block;
 }
 
-.formCreateTask {
+.formEditTask {
   text-align: center;
   width: 700px;
+  height: 100%;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 .datePicker {
@@ -183,9 +190,7 @@ watchEffect(() => {
 
 .btnBlock {
   display: flex;
-  margin-top: 1rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin: 0 1rem 1rem 1rem;
   justify-content: right;
   gap: 0.5rem;
 }

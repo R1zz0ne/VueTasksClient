@@ -1,9 +1,9 @@
 <template>
   <div>
     <ul>
-      <nav-item path="/tasks" title="Мои задачи" />
-      <nav-item path="/projects" title="Проекты" />
-      <nav-item path="/board" title="Доска" />
+      <nav-item path="/tasks" title="Мои задачи" room="taskList" />
+      <nav-item path="/projects" title="Проекты" room="projectList" />
+      <nav-item path="/board" title="Доска" room="boardList" />
     </ul>
   </div>
 </template>

@@ -13,7 +13,7 @@
       <m-selected-input :select-user="localProject.owner" :set-select-user="setSelectUser"></m-selected-input>
     </div>
     <div class="buttons">
-      <m-button @click="setMode('view')" type="danger">Отменить</m-button>
+      <m-button @click="setMode('view', false)" type="danger">Отменить</m-button>
       <m-button @click="handleCreateProject" type="success"> Сохранить</m-button>
     </div>
   </div>
@@ -49,7 +49,7 @@ const handleCreateProject = async () => {
     owner: localProject.value.owner.user_id,
   });
   await router.push(`/projects/${createProject.project_id}`)
-  setMode('view')
+  setMode('view', false)
 }
 
 const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {

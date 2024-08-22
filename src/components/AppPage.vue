@@ -11,16 +11,46 @@ import Header from "./header/Header.vue";
 import Navbar from "./navbar/Navbar.vue";
 import {watchEffect} from "vue";
 import {useStore} from "vuex";
-import router from "../router/router.ts";
+import {useRouter} from "vue-router";
+import SocketEmit from "../api/socketEmit.ts";
 
-const store = useStore().state.userModule;
+const store = useStore();
+const userModule = store.state.userModule;
+const router = useRouter();
 
 watchEffect(() => {
-  if (!store.isAuth) {
+  if (!userModule.isAuth) {
     router.push('/authorization')
   }
 })
 
+router.beforeEach((to, from, next) => {
+  if (from.name === 'tasks' && to.name !== 'tasks') {
+    if (from.params.id) {
+      SocketEmit.leaveRoom({type: 'task', id: Number(from.params.id)})
+      store.commit('taskModule/setCurrentTask', {})
+      store.commit('taskModule/setTaskRoom', [])
+    }
+    SocketEmit.leaveRoom({type: 'taskList'})
+  }
+  if (from.name === 'projects' && to.name !== 'projects') {
+    if (from.params.id) {
+      SocketEmit.leaveRoom({type: 'project', id: Number(from.params.id)})
+      store.commit('projectModule/setCurrentProject', {})
+      store.commit('projectModule/setProjectRoom', [])
+    }
+    SocketEmit.leaveRoom({type: 'projectList'})
+  }
+  if (from.name === 'board' && to.name !== 'board') {
+    if (from.params.id) {
+      SocketEmit.leaveRoom({type: 'board', id: Number(from.params.id)})
+      store.commit('projectModule/setCurrentProject', {})
+      store.commit('projectModule/setBoardRoom', [])
+    }
+    SocketEmit.leaveRoom({type: 'boardList'})
+  }
+  next();
+})
 </script>
 
 <style scoped>
@@ -30,6 +60,7 @@ watchEffect(() => {
   grid-template-columns: 200px auto;
   grid-template-rows: 50px auto;
 }
+
 .header {
   background-color: var(--primary-700);
   grid-column: 1/3;
@@ -38,12 +69,14 @@ watchEffect(() => {
   align-items: center;
   padding: 10px;
 }
+
 .nav {
   background-color: var(--neutral-300);
   border-right: 1px solid var(--neutral-400);
   display: flex;
   justify-content: center;
 }
+
 .body {
   background-color: var(--neutral-300);
   display: flex;

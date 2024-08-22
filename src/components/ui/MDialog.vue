@@ -28,12 +28,12 @@ const hideDialog = () => {
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
   display: flex;
-  z-index: 999;
+  z-index: 998;
 }
 
 .dialogContent {
   margin: auto;
-  background: var(--neutral-200);
+  background: var(--neutral-300);
   border-radius: 12px;
   padding: 12px;
   padding: 0;

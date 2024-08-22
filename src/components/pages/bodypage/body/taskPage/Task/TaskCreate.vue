@@ -49,7 +49,7 @@ import {IUser} from "../../../../../../models/UserModels.ts";
 import MSelect from "../../../../../ui/MSelect.vue";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
 import {datePickerFormat, taskPriorityMap} from "../../../../../../utils/constants.ts";
-import {useStore} from "vuex";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
 
 const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
   form.value.member.user_id = selectUser.user_id
@@ -80,8 +80,6 @@ const formSchema = z.object({
   })
 })
 
-const store = useStore();
-
 type formSchemaType = z.infer<typeof formSchema>
 const errors = ref<z.ZodFormattedError<formSchemaType> | null>(null)
 
@@ -91,14 +89,14 @@ const handleSubmit = async () => {
     errors.value = validSchema.error.format()
   } else {
     errors.value = null;
-    await store.dispatch('projectModule/createTaskAC', {
+    SocketEmit.createTaskEmit({
       name: form.value.name,
       description: form.value.description,
       priority: form.value.priority,
       complation_date: form.value.complation_date,
       project_id: projectId,
       member: form.value.member.user_id
-    });
+    })
     setDialogVisible(false);
   }
   isTrySubmit.value = true;

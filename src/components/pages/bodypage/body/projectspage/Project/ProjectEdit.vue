@@ -1,8 +1,9 @@
 <template>
   <div class="itemContent">
+    <span class="title">Редактирование проекта # {{ projectStoreCurrentProject.project_id }}</span>
     <div class="fieldBlock">
-      <label class="title projectId"># {{projectStoreCurrentProject.project_id}}</label>
-      <m-input placeholder="Тема" class="title" v-model="localProject.name"></m-input>
+      <label>Название</label>
+      <m-input placeholder="Тема" v-model="localProject.name"></m-input>
     </div>
     <div class="fieldBlock">
       <label>Описание</label>
@@ -13,9 +14,10 @@
       <m-selected-input :select-user="localProject.owner" :set-select-user="setSelectUser"></m-selected-input>
     </div>
     <div class="buttons">
-      <m-button @click="setMode('view')" type="danger">Отменить</m-button>
+      <m-button @click="setMode('view', true)" type="danger">Отменить</m-button>
       <m-button @click="handleUpdate" type="success">Сохранить</m-button>
     </div>
+    <record-footer :editor="projectState.currentProject.editor" :viewers="projectState.projectRoom"/>
   </div>
 </template>
 
@@ -28,11 +30,15 @@ import {IUser} from "../../../../../../models/UserModels.ts";
 import {useStore} from "vuex";
 import MTextarea from "../../../../../ui/MTextarea.vue";
 import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
+import RecordFooter from "../../RecordFooter.vue";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
 
 const store = useStore();
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
 
-const projectStoreCurrentProject = store.state.projectModule.currentProject;
+const projectState = store.state.projectModule;
+const projectStoreCurrentProject = projectState.currentProject;
+
 const localProject = ref({
   name: projectStoreCurrentProject.name,
   description: projectStoreCurrentProject.description,
@@ -48,17 +54,13 @@ const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
 }
 
 const handleUpdate = async () => {
-  try {
-    await store.dispatch('projectModule/updateProjectAC', {
-      project_id: projectStoreCurrentProject.project_id,
-      name: localProject.value.name,
-      description: localProject.value.description,
-      owner: localProject.value.owner.user_id
-    })
-    setMode('view');
-  } catch (e) {
-    console.log('Произошла ошибка при обновлении проекта'); //TODO: тут try/catch конструкция скорее всего не нужна, т.к. она есть в диспатче. Сейчас просто чтобы лог выводить
-  }
+  SocketEmit.updateProjectEmit({
+    project_id: projectStoreCurrentProject.project_id,
+    name: localProject.value.name,
+    description: localProject.value.description,
+    owner: localProject.value.owner.user_id
+  })
+  setMode('view', true);
 }
 </script>
 
@@ -67,12 +69,12 @@ const handleUpdate = async () => {
   display: flex;
   gap: 5px;
   justify-content: right;
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
 }
 
 .fieldBlock {
   position: relative;
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
   display: flex;
   gap: 5px;
   align-items: start;
@@ -97,11 +99,18 @@ const handleUpdate = async () => {
   height: 100%;
   text-align: center;
   padding: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
+
 .title {
-  font-size: 1.25rem;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 1rem;
+  display: inline-block;
 }
+
 .projectId {
   font-weight: bold;
 }

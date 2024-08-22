@@ -1,12 +1,22 @@
 <template>
-  <li @click="$router.push(path)"
+  <li @click="clickHandler"
       :class="{active: $route.path === path || $route.path.startsWith(`${path}/`)}"
   >{{ title }}
   </li>
 </template>
 
 <script setup lang="ts">
-defineProps(['path', 'title'])
+import {useRouter} from "vue-router";
+import SocketEmit from "../../api/socketEmit.ts";
+
+const {path, title, room} = defineProps<{ path: string, title: string, room: string }>()
+
+const router = useRouter();
+
+const clickHandler = () => {
+  router.push(path)
+  SocketEmit.joinRoom({type: room})
+}
 </script>
 
 <style scoped>

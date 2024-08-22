@@ -1,5 +1,5 @@
 <template>
-  <div class="board" v-if="$route.params.id">
+  <div class="board">
     <div class="board_row">
       <span>Зарегистрировано</span>
       <div class="drag-container"
@@ -37,15 +37,19 @@
       </div>
     </div>
   </div>
-  <div v-else class="board"></div>
+  <RecordFooter :editor="null" :viewers="store.state.projectModule.boardRoom"/>
 </template>
 
 <script setup lang="ts">
-import {ref, watchEffect} from "vue";
+import {onMounted, onUnmounted, ref, watch, watchEffect} from "vue";
 import {useStore} from "vuex";
-import {ITaskShort} from "../../../../../models/TaskModels.ts";
+import {ITaskShort, ITaskStatusMap} from "../../../../../models/TaskModels.ts";
+import SocketEmit from "../../../../../api/socketEmit.ts";
+import {useRoute} from "vue-router";
+import RecordFooter from "../RecordFooter.vue";
 
 const store = useStore();
+const route = useRoute();
 
 const columns = ref({
   assigned: [] as ITaskShort[],
@@ -63,8 +67,8 @@ const onDragOver = (event: any) => {
   event.preventDefault();
 };
 
-const onDrop = (targetStatus: string) => {
-  store.dispatch('projectModule/updateStatusTaskAC', {task_id: draggedTaskID, status: targetStatus})
+const onDrop = (targetStatus: ITaskStatusMap) => {
+  SocketEmit.updateStatusTaskEmit({task_id: draggedTaskID!, status: targetStatus})
 };
 
 const updateColumns = (tasksArray: ITaskShort[]) => {
@@ -87,11 +91,36 @@ const updateColumns = (tasksArray: ITaskShort[]) => {
   })
 };
 
-watchEffect(() => { //
+watchEffect(() => {
   if (store.state.projectModule.currentProject.project_id) {
     updateColumns(store.state.projectModule.currentProject.tasks);
   } else {
 
+  }
+})
+
+//rooms
+const joinRoom = (project_id: number) => {
+  SocketEmit.joinRoom({type: 'board', id: project_id})
+}
+const leaveRoom = (project_id: number) => {
+  SocketEmit.leaveRoom({type: 'board', id: project_id})
+  store.commit('projectModule/setCurrentProject', {})
+  store.commit('projectModule/setBoardRoom', [])
+}
+
+onMounted(() => {
+  joinRoom(store.state.projectModule.currentProject.project_id)
+})
+onUnmounted(() => {
+  if (store.state.projectModule.currentProject.project_id) {
+    leaveRoom(store.state.projectModule.currentProject.project_id)
+  }
+})
+watch(() => route.params.id, (newProjectId, oldProjectId) => {
+  if (newProjectId !== oldProjectId) {
+    leaveRoom(Number(oldProjectId));
+    joinRoom(Number(newProjectId));
   }
 })
 </script>

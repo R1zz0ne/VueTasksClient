@@ -11,10 +11,12 @@ import BoardPage from "../components/pages/bodypage/body/boardPage/BoardPage.vue
 const routes = [
     {
         path: '/authorization',
+        name: 'authorization',
         component: Authorizationpage
     },
     {
         path: '/registration',
+        name: 'registration',
         component: Registrationpage
     },
     {
@@ -27,10 +29,12 @@ const routes = [
             },
             {
                 path: 'tasks',
+                name: 'tasks',
                 component: TasksPage,
                 children: [
                     {
                         path: ':id',
+                        name: 'tasks',
                         component: TasksPage
                     }
                 ],
@@ -45,10 +49,12 @@ const routes = [
             },
             {
                 path: 'projects',
+                name: 'projects',
                 component: ProjectsPage,
                 children: [
                     {
                         path: ':id',
+                        name: 'projects',
                         component: ProjectsPage
                     }
                 ],
@@ -63,10 +69,12 @@ const routes = [
             },
             {
                 path: 'board',
+                name: 'board',
                 component: BoardPage,
                 children: [
                     {
                         path: ':id',
+                        name: 'board',
                         component: BoardPage
                     }
                 ],

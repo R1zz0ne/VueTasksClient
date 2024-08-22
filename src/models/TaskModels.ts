@@ -1,4 +1,5 @@
 import {taskPriorityMap, taskStatusMap} from "../utils/constants.ts";
+import {IUser} from "./UserModels.ts";
 
 export interface ITaskResponse {
     task_id: number,
@@ -15,7 +16,11 @@ export interface ITaskResponse {
         name: string,
         email: string
     },
-    status: ITaskStatusMap
+    status: ITaskStatusMap,
+    editor: {
+        user_id: number,
+        name: string
+    } | null
 }
 
 export type ITaskStatusMap = keyof typeof taskStatusMap
@@ -24,8 +29,8 @@ export type ITaskPriorityMap = keyof typeof taskPriorityMap
 export interface ITaskRequest {
     name: string,
     description: string,
-    priority: ITaskPriorityMap,
-    complation_date: object,
+    priority: string,
+    complation_date: any,
     project_id: number,
     member: number
 }
@@ -40,11 +45,13 @@ export interface ITaskRequestUpdStatus extends Pick<ITaskResponse, 'task_id' | '
 
 export interface ITaskModuleState {
     currentTask: ITaskResponse,
-    taskList: ITaskList[]
+    taskList: ITaskList[],
+    taskRoom: Pick<IUser, 'user_id' | 'name'>[]
 }
 
 export interface ITaskUpdateRequest extends ITaskRequest {
-    task_id: number
+    task_id: number,
+    status: ITaskStatusMap
 }
 
 export interface ITaskList extends Pick<ITaskResponse, 'task_id' | 'name' | 'priority' | 'status'> {
@@ -62,4 +69,16 @@ export type ITaskListKey = keyof IConvTaskList
 export interface ITaskListFilter {
     status: ITaskStatusMap | null,
     priority: ITaskPriorityMap | null
+}
+
+export interface ITaskUpdateEditor {
+    task_id: number,
+    editor: number | null
+}
+
+export interface ITaskInfoInList {
+    task_id: number,
+    name?: string,
+    priority?: ITaskPriorityMap
+    status?: ITaskStatusMap
 }

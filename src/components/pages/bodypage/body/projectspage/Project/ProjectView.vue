@@ -3,7 +3,7 @@
     <div class="fieldBlock">
       <label class="title"># {{ projectStore.currentProject.project_id }}</label>
       <span class="title">{{ projectStore.currentProject.name }}</span>
-      <m-button class="btnEdit" @click="setMode('edit')" type="none">
+      <m-button class="btnEdit" @click="handleEdit" type="none">
         <edit-s-v-g fill="var(--primary-600)" style="vertical-align: center"/>
       </m-button>
     </div>
@@ -23,10 +23,12 @@
     <div class="tasksBlock">
       <div class="tasksTitleBlock">
         <span>Список связанных задач</span>
-        <m-button @click="$router.push(`/board/${projectStore.currentProject.project_id}`)">
-          Открыть доску
-        </m-button> <!-- TODO: Придумать потом куда расположить эту кнопку -->
-        <m-button @click="changeDialogVisible(true)">Создать задачу</m-button>
+        <div class="tasksTitleBtn">
+          <m-button @click="$router.push(`/board/${projectStore.currentProject.project_id}`)">
+            Открыть доску
+          </m-button>
+          <m-button @click="changeDialogVisible(true)">Создать задачу</m-button>
+        </div>
         <m-dialog v-model:show="dialogVisible" is-close="onlyButton">
           <TaskCreate :set-dialog-visible="changeDialogVisible"
                       :project-id="projectStore.currentProject.project_id"></TaskCreate>
@@ -55,6 +57,7 @@
         <task :change-task-info-visible="changeTaskInfoVisible"/>
       </m-dialog>
     </div>
+    <record-footer :editor="projectStore.currentProject.editor" :viewers="projectStore.projectRoom"/>
   </div>
   <div class="itemContent" v-else></div>
 </template>
@@ -69,15 +72,18 @@ import MLink from "../../../../../ui/MLink.vue";
 import Task from "../../taskPage/Task/Task.vue";
 import EditSVG from "../../../../../ui/svg/EditSVG.vue";
 import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
-import {taskPriorityMap} from "../../../../../../utils/constants.ts"; //TODO: посмотреть можно ли сделать импорт не через относительные пути
+import {taskPriorityMap} from "../../../../../../utils/constants.ts";
+import RecordFooter from "../../RecordFooter.vue";
+import {setError} from "../../../../../../services/setError.ts";
 
 const dialogVisible = ref(false);
 const taskInfoVisible = ref(false);
-const projectStore = useStore().state.projectModule;
+const store = useStore();
+const projectStore = store.state.projectModule;
 
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
 
-const store = useStore();
+
 const changeDialogVisible = (value: boolean) => {
   dialogVisible.value = value;
 }
@@ -87,6 +93,16 @@ const changeTaskInfoVisible = (value: boolean) => {
 const getTaskAndVisible = async (taskId: number) => {
   await store.dispatch('taskModule/getTaskAC', taskId);
   changeTaskInfoVisible(true);
+}
+
+const handleEdit = () => {
+  if (typeof projectStore.currentProject.editor?.user_id === 'number') {
+    setError({
+      message: `Этот проект уже редактирует пользователь "${projectStore.currentProject.editor.name}", попробуйте позже`
+    })
+  } else {
+    setMode('edit', true);
+  }
 }
 </script>
 
@@ -104,6 +120,8 @@ const getTaskAndVisible = async (taskId: number) => {
   height: 100%;
   text-align: center;
   padding: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
@@ -112,7 +130,7 @@ const getTaskAndVisible = async (taskId: number) => {
 }
 
 .tasksBlock {
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
   text-align: start;
 
   span {
@@ -142,7 +160,7 @@ const getTaskAndVisible = async (taskId: number) => {
 }
 
 .fieldBlock {
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
   display: flex;
   gap: 5px;
   align-items: start;
@@ -167,11 +185,20 @@ const getTaskAndVisible = async (taskId: number) => {
   }
 }
 
+.fieldBlock:first-child {
+  margin: 1rem;
+}
+
 .tasksTitleBlock {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1rem;
   margin-bottom: 0.5rem;
+}
+
+.tasksTitleBtn {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 }
 </style>

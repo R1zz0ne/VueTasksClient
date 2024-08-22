@@ -6,20 +6,29 @@ import {
     IProjectList,
     IProjectModuleState
 } from "../../models/ProjectModels.ts";
-import {ITaskRequest, ITaskRequestUpdStatus, ITaskResponse} from "../../models/TaskModels.ts";
-import {setNotification} from "../../services/setNotification.ts";
+import {ITaskResponse, ITaskShort} from "../../models/TaskModels.ts";
 import SocketEmit from "../../api/socketEmit.ts";
+import {IUser} from "../../models/UserModels.ts";
 
 export const ProjectModule: Module<IProjectModuleState, any> = {
     namespaced: true,
     state: () => ({
         currentProject: {} as IProject,
         projectList: [] as IProjectList[],
+        projectRoom: [] as Pick<IUser, 'user_id' | 'name'>[],
+        boardRoom: [] as Pick<IUser, 'user_id' | 'name'>[]
     }),
     getters: {},
     mutations: {
         setProjectList(state, projectList: IProjectList[]) {
             state.projectList = projectList;
+        },
+        updateProjectInfoInList(state, project: IDataForUpdateProject) {
+            const index = state.projectList.findIndex((projectInArr) =>
+                projectInArr.project_id === project.project_id)
+            if (index !== -1) {
+                project.name ? state.projectList[index].name = project.name : null
+            }
         },
         setCurrentProject(state, project: IProject) {
             state.currentProject = project;
@@ -29,20 +38,31 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
                 state.currentProject.name = project.name;
                 state.currentProject.description = project.description;
                 state.currentProject.owner = project.owner;
-            } else {
-                setNotification({
-                    message: 'currentProject в state не была обновлена из-за того что был открыт другой проект',
-                    type: 'warning'
-                })
             }
         },
         setTaskInCurrentProject(state, task: ITaskResponse) {
             state.currentProject.tasks.push(task)
         },
-        updateStatusTask(state, task: ITaskRequestUpdStatus) {
+        updateTask(state, task: Partial<ITaskShort>) {
             const index = state.currentProject.tasks.findIndex((taskInArr) => taskInArr.task_id === task.task_id);
             if (index !== -1) {
-                state.currentProject.tasks[index].status = task.status;
+                task.name ? state.currentProject.tasks[index].name = task.name : null;
+                task.priority ? state.currentProject.tasks[index].priority = task.priority : null;
+                task.complation_date ? state.currentProject.tasks[index].complation_date = task.complation_date : null;
+                task.member ? state.currentProject.tasks[index].member = task.member : null;
+                task.status ? state.currentProject.tasks[index].status = task.status : null;
+                task.editor ? state.currentProject.tasks[index].editor = task.editor : null;
+            }
+        },
+        setProjectRoom(state, userList: Pick<IUser, 'user_id' | 'name'>[]) {
+            state.projectRoom = userList;
+        },
+        setBoardRoom(state, userList: Pick<IUser, 'user_id' | 'name'>[]) {
+            state.boardRoom = userList;
+        },
+        updateProjectEditor(state, data: Pick<IProject, 'project_id' | 'editor'>) {
+            if (state.currentProject.project_id === data.project_id) {
+                state.currentProject.editor = data.editor;
             }
         }
     },
@@ -59,10 +79,8 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
         },
         async updateProjectAC({commit}, data: IDataForUpdateProject) {
             try {
-                console.log(data)
-                const response: Omit<IProject, 'tasks'> = await SocketEmit.updateProjectEmit(data)
-                commit('setCurrentProject', {...response})
-                return response
+                commit('updateCurrentProject', data)
+                commit('updateProjectInfoInList', data)
             } catch (e) {
                 setError(e)
             }
@@ -83,18 +101,29 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
                 setError(e)
             }
         },
-        async createTaskAC({commit}, data: ITaskRequest) {
+        async createTaskAC({commit}, data: ITaskResponse) {
             try {
-                const response: ITaskResponse = await SocketEmit.createTaskEmit(data);
-                commit('setTaskInCurrentProject', response)
+                commit('setTaskInCurrentProject', data)
             } catch (e) {
                 setError(e);
             }
         },
-        async updateStatusTaskAC({commit}, data: ITaskRequestUpdStatus) {
+        async updateTaskAC({commit}, data: Partial<ITaskShort>) {
             try {
-                const response: ITaskRequestUpdStatus = await SocketEmit.updateStatusTaskEmit(data);
-                commit('updateStatusTask', response)
+                commit('updateTask', data)
+            } catch (e) {
+                setError(e)
+            }
+        },
+        async setProjectRoom({commit}, users: Pick<IUser, 'user_id' | 'name'>[]) {
+            commit('setProjectRoom', users)
+        },
+        async setBoardRoom({commit}, users: Pick<IUser, 'user_id' | 'name'>[]) {
+            commit('setBoardRoom', users)
+        },
+        async updateProjectEditor({commit}, data: Pick<IProject, 'project_id' | 'editor'>) {
+            try {
+                commit('updateProjectEditor', data)
             } catch (e) {
                 setError(e)
             }

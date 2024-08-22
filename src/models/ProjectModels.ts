@@ -3,13 +3,15 @@ import {ITaskShort} from "./TaskModels.ts";
 
 export interface IProjectModuleState {
     projectList: IProjectList[],
-    currentProject: IProject
+    currentProject: IProject,
+    projectRoom: Pick<IUser, 'user_id' | 'name'>[],
+    boardRoom: Pick<IUser, 'user_id' | 'name'>[]
 }
 
 export interface IProjectList extends Pick<IProject, 'project_id' | 'name'> {
 }
 
-export interface IDataForUpdateProject extends Omit<IProject, 'tasks' | 'owner'> {
+export interface IDataForUpdateProject extends Omit<IProject, 'tasks' | 'owner' | 'editor'> {
     owner: number
 }
 
@@ -18,16 +20,25 @@ export interface IProject {
     name: string,
     description: string,
     owner: IUser,
-    tasks: ITaskShort[]
+    tasks: ITaskShort[],
+    editor: {
+        user_id: number,
+        name: string
+    } | null
 }
 
 export interface IProjectProps {
     mode: string,
-    setMode: Function
+    setMode: (value: 'view' | 'edit' | 'create', updateEditor: boolean) => void
 }
 
 export interface ICreateProjectEmit {
     name: string,
     description: string,
     owner: number
+}
+
+export interface IProjectUpdateEditor {
+    project_id: number,
+    editor: number | null
 }
