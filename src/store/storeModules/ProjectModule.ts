@@ -1,7 +1,7 @@
 import {Module} from "vuex";
 import {setError} from "../../services/setError.ts";
 import {
-    ICreateProjectEmit, IDataForUpdateProject,
+    IDataForUpdateProject,
     IProject,
     IProjectList,
     IProjectModuleState
@@ -16,12 +16,20 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
         currentProject: {} as IProject,
         projectList: [] as IProjectList[],
         projectRoom: [] as Pick<IUser, 'user_id' | 'name'>[],
-        boardRoom: [] as Pick<IUser, 'user_id' | 'name'>[]
+        boardRoom: [] as Pick<IUser, 'user_id' | 'name'>[],
+        pageInfo: {
+            page: 1,
+            totalPages: 0,
+            totalRecords: 0
+        }
     }),
     getters: {},
     mutations: {
         setProjectList(state, projectList: IProjectList[]) {
-            state.projectList = projectList;
+            state.projectList = [...state.projectList, ...projectList];
+        },
+        cleanProjectList(state) {
+            state.projectList = []
         },
         updateProjectInfoInList(state, project: IDataForUpdateProject) {
             const index = state.projectList.findIndex((projectInArr) =>
@@ -64,15 +72,31 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
             if (state.currentProject.project_id === data.project_id) {
                 state.currentProject.editor = data.editor;
             }
+        },
+        setCurrentPage(state, page: number) {
+            state.pageInfo.page = page;
+        },
+        setTotalRecords(state, totalRecords: number) {
+            const totalPages = Math.ceil(totalRecords / 20);
+            state.pageInfo.totalRecords = totalRecords;
+            state.pageInfo.totalPages = totalPages;
+        },
+        addNewProjectInList(state, project: IProjectList) {
+            const isLastPage: boolean = state.pageInfo.totalPages === state.pageInfo.page;
+            const countInLastPage: number = (state.pageInfo.page * 20) - state.pageInfo.totalRecords;
+            const totalRecords: number = state.pageInfo.totalRecords + 1
+            const totalPages: number = Math.ceil(totalRecords / 20);
+            state.pageInfo.totalRecords = totalRecords;
+            state.pageInfo.totalPages = totalPages;
+            if (isLastPage && countInLastPage > 0) {
+                state.projectList = [...state.projectList, project];
+            }
         }
     },
     actions: {
-        async createProjectAC({commit, dispatch}, data: ICreateProjectEmit) {
+        async createProjectAC({commit}, data: IProject) {
             try {
-                const response: IProject = await SocketEmit.createProjectEmit(data)
-                commit('setCurrentProject', {...response})
-                dispatch('getProjectListAC')
-                return response
+                commit('setCurrentProject', {...data})
             } catch (e) {
                 setError(e)
             }
@@ -85,10 +109,9 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
                 setError(e)
             }
         },
-        async getProjectListAC({commit}) {
+        async getProjectListAC({commit}, data: IProjectList[]) {
             try {
-                const response: IProjectList[] = await SocketEmit.getProjectListEmit();
-                commit('setProjectList', response)
+                commit('setProjectList', data)
             } catch (e) {
                 setError(e)
             }
@@ -127,6 +150,22 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
             } catch (e) {
                 setError(e)
             }
+        },
+        async setTotalRecords({commit}, data: { totalCount: number }) {
+            try {
+                commit('setTotalRecords', data.totalCount)
+            } catch (e) {
+                setError(e)
+            }
+        },
+        async resetProjectAction({commit}) {
+            commit('setProjectRoom', [])
+            commit('cleanProjectList')
+            commit('setCurrentPage', 1)
+            commit('setTotalRecords', 0)
+        },
+        async addNewProjectInList({commit}, data: IProjectList) {
+            commit('addNewProjectInList', data)
         }
     }
 }

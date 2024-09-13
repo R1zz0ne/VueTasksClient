@@ -25,13 +25,10 @@ import MButton from "../../../../../ui/MButton.vue";
 import {ref} from "vue";
 import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
 import {IUser} from "../../../../../../models/UserModels.ts";
-import {useStore} from "vuex";
-import {useRouter} from "vue-router";
 import {IProjectProps} from "../../../../../../models/ProjectModels.ts";
 import MTextarea from "../../../../../ui/MTextarea.vue";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
 //TODO: сделать через библиотеку форм (валидация формы)
-const store = useStore();
-const router = useRouter();
 
 const localProject = ref({
   name: '',
@@ -43,12 +40,11 @@ const localProject = ref({
 })
 
 const handleCreateProject = async () => {
-  const createProject = await store.dispatch('projectModule/createProjectAC', {
+  SocketEmit.createProjectEmit({
     name: localProject.value.name,
     description: localProject.value.description,
     owner: localProject.value.owner.user_id,
-  });
-  await router.push(`/projects/${createProject.project_id}`)
+  })
   setMode('view', false)
 }
 

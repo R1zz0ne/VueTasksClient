@@ -1,24 +1,31 @@
 <template>
-  <ul class="listItems">
-    <li v-for="project in filtrableProjectList"
-        :key="project.project_id"
-        @click="handleClick(project.project_id)"
-        :class="[project.project_id === Number($route.params.id) ? 'select' : '']"
+  <div class="listItems">
+    <div v-for="project in filtrableProjectList"
+         :key="project.project_id"
+         @click="handleClick(project.project_id)"
+         :class="{
+              'item': true,
+              'select': project.project_id === Number($route.params.id),
+           }"
     >
       {{ project.name }}
-    </li>
-  </ul>
+    </div>
+    <div ref="observer"/>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {useStore} from "vuex";
 import router from "../../../../../../router/router.ts";
-import {ref, watchEffect} from "vue";
+import {onBeforeUnmount, onMounted, ref, watchEffect} from "vue";
 import {IProjectList} from "../../../../../../models/ProjectModels.ts";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
 
 const store = useStore();
 const projectStore = store.state.projectModule;
 const filtrableProjectList = ref([] as IProjectList[]);
+const observer = ref(null);
+let observe: IntersectionObserver | null = null;
 
 const props = defineProps<{ path: string, searchString: string }>();
 const handleClick = (projectId: number) => {
@@ -29,21 +36,49 @@ const filter = (string: string) => {
   return projectStore.projectList.filter((el) => el.name.includes(string))
 }
 
+const handleGetProjectMore = async () => {
+  if (projectStore.pageInfo.totalPages > projectStore.pageInfo.page) {
+    const newPage: number = projectStore.pageInfo.page + 1;
+    store.commit('projectModule/setCurrentPage', newPage);
+    await SocketEmit.getProjectListEmit(newPage);
+  }
+}
+
 watchEffect(() => {
   filtrableProjectList.value = filter(props.searchString)
+})
+
+onMounted(() => {
+  if (observer.value) {
+    observe = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        handleGetProjectMore();
+      }
+    }, {rootMargin: '0px 0px 100px 0px', threshold: 0.1})
+    observe.observe(observer.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (observe) {
+    observe.disconnect();
+  }
 })
 </script>
 
 <style scoped>
 .listItems {
   flex-grow: 1;
+  overflow-y: auto;
   list-style-type: none;
+}
 
-  li {
-    padding: 10px 5px 10px 5px;
-    border-bottom: 1px solid var(--neutral-400);
-    cursor: default;
-  }
+.item {
+  padding: 0px 5px 0px 5px;
+  border-bottom: 1px solid var(--neutral-400);
+  cursor: pointer;
+  height: 2.75rem;
+  align-content: center;
 }
 
 .select {

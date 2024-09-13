@@ -21,37 +21,34 @@
           </div>
         </div>
       </div>
-      <div class="tab-panel">
-        <div
-            class="tab-item"
-            :class="[taskListMode === 'active' ? 'tab-item-act' : '']"
-            @click="setTaskListMode('active')"
-        >Активные
-        </div>
-        <div
-            class="tab-item"
-            :class="[taskListMode === 'completed' ? 'tab-item-act' : '']"
-            @click="setTaskListMode('completed')"
-        >Завершенные
-        </div>
-      </div>
+      <task-tab-panel :task-list-mode="taskListMode" :set-task-list-mode="setTaskListMode"/>
     </div>
-    <task-list-items path="tasks" :search-string="searchString" :elements="filterableArray"></task-list-items>
-    <div class="pag">TODO: paginations</div>
+    <task-list-items path="tasks"
+                     :search-string="searchString"
+                     :elements="filterableArray"
+                     :handle-more="handleGetTaskMore"
+                     v-if="filterableArray.length > 0"
+    ></task-list-items>
+    <div v-else class="listItems"/>
+    <div class="pag">Кол-во записей: {{ taskModule.pageInfo.totalRecords }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import MInput from "../../../../ui/MInput.vue";
+import MInput from "../../../../../ui/MInput.vue";
 import TaskListItems from "./TaskListItems.vue";
 import {Ref, ref, watchEffect} from "vue";
-import MButton from "../../../../ui/MButton.vue";
-import MSelect from "../../../../ui/MSelect.vue";
-import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../../../utils/constants.ts";
+import MButton from "../../../../../ui/MButton.vue";
+import MSelect from "../../../../../ui/MSelect.vue";
+import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
 import {useStore} from "vuex";
-import {IConvTaskList, ITaskList, ITaskListFilter} from "../../../../../models/TaskModels.ts";
+import {IConvTaskList, ITaskList, ITaskListFilter} from "../../../../../../models/TaskModels.ts";
+import SocketEmit from "../../../../../../api/socketEmit.ts";
+import TaskTabPanel from "./TaskTabPanel.vue";
 
 const store = useStore();
+const taskModule = useStore().state.taskModule;
 
 const searchString = ref("")
 const visibleFilter = ref(false);
@@ -64,18 +61,21 @@ const taskListMode = ref("active");
 
 const setTaskListMode = async (value: 'active' | 'completed') => {
   if (value === 'active' && taskListMode.value !== 'active') {
-    await store.dispatch('taskModule/getTaskListAC')
+    store.commit('taskModule/setCurrentPage', 1)
+    store.commit('taskModule/cleanTaskList')
+    await SocketEmit.getTaskListEmit(store.state.taskModule.pageInfo.page);
   } else if (value === 'completed' && taskListMode.value !== 'completed') {
-    await store.dispatch('taskModule/getCloseTaskListAC')
+    store.commit('taskModule/setCurrentPage', 1)
+    store.commit('taskModule/cleanTaskList')
+    await SocketEmit.getCloseTaskListEmit(store.state.taskModule.pageInfo.page);
   }
   taskListMode.value = value;
+  store.commit('taskModule/setTaskListMode', value);
 }
 
 const setVisibleFilter = (value: boolean) => {
   visibleFilter.value = value
 }
-
-const taskModule = useStore().state.taskModule;
 
 const applyFilter = () => {
   const isStatus: boolean = filter.value.status !== null;
@@ -106,38 +106,21 @@ filterableArray.value = convTaskList(taskModule.taskList);
 watchEffect(() => {
   applyFilter()
 })
+
+const handleGetTaskMore = async () => {
+  if (taskModule.pageInfo.totalPages > taskModule.pageInfo.page) {
+    const newPage: number = taskModule.pageInfo.page + 1;
+    store.commit('taskModule/setCurrentPage', newPage);
+    if (taskListMode.value === 'active') {
+      await SocketEmit.getTaskListEmit(newPage);
+    } else {
+      await SocketEmit.getCloseTaskListEmit(newPage);
+    }
+  }
+}
 </script>
 
 <style scoped>
-.tab-panel {
-  width: 80%;
-  display: flex;
-  flex-direction: row;
-}
-
-.tab-item {
-  width: 100%;
-  text-align: center;
-  border: 1px solid var(--primary-400);
-  cursor: pointer;
-  color: var(--primary-600);
-}
-
-.tab-item:first-child {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-
-.tab-item:last-child {
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-.tab-item-act {
-  background-color: var(--primary-300);
-  font-weight: bold;
-}
-
 .list-block {
   display: flex;
   flex-direction: column;
@@ -146,8 +129,6 @@ watchEffect(() => {
 }
 
 .navBlock {
-  /*min-width: 300px;
-  max-width: 600px;*/
   border-right: 1px solid var(--neutral-600);
   display: flex;
   flex-direction: column;
@@ -203,5 +184,10 @@ input {
   display: flex;
   gap: 5px;
   justify-content: right;
+}
+
+.listItems {
+  flex-grow: 1;
+  min-width: 299px;
 }
 </style>

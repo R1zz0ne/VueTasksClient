@@ -1,11 +1,13 @@
 import {IUser} from "./UserModels.ts";
 import {ITaskShort} from "./TaskModels.ts";
+import {IPageInfo} from "./otherModels.ts";
 
 export interface IProjectModuleState {
     projectList: IProjectList[],
     currentProject: IProject,
     projectRoom: Pick<IUser, 'user_id' | 'name'>[],
-    boardRoom: Pick<IUser, 'user_id' | 'name'>[]
+    boardRoom: Pick<IUser, 'user_id' | 'name'>[],
+    pageInfo: IPageInfo
 }
 
 export interface IProjectList extends Pick<IProject, 'project_id' | 'name'> {

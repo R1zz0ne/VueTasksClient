@@ -1,23 +1,23 @@
 <template>
   <div class="table-wrapper" :style="{ width: wrapperWidth + 'px' }">
-    <div class="table-container" :style="{ width: tableWidth + 'px' }">
-      <div class="table-row table-header">
+    <div class="table-row table-header">
+      <div
+          v-for="(column, index) in columnsName"
+          :key="index"
+          class="table-cell"
+          :style="{ flexBasis: columnWidths[index] + 'px' }"
+      >
+        {{ column }}
         <div
-            v-for="(column, index) in columnsName"
-            :key="index"
-            class="table-cell"
-            :style="{ flexBasis: columnWidths[index] + 'px' }"
-        >
-          {{ column }}
-          <div
-              class="resize-handle"
-              @mousedown.stop="startResizing(index, $event)"
-          ></div>
-        </div>
+            class="resize-handle"
+            @mousedown.stop="startResizing(index, $event)"
+        ></div>
       </div>
+    </div>
+    <div class="table-body">
       <div
           v-for="task in filterableTaskList"
-          class="table-row"
+          class="table-row table-data"
           :key="task.task_id"
           @click="handleClick(task.task_id)"
           :class="[task.task_id === Number($route.params.id) ? 'select' : '']"
@@ -31,6 +31,7 @@
           {{ task[column] }}
         </div>
       </div>
+      <div ref="observer"/>
     </div>
   </div>
 </template>
@@ -39,9 +40,12 @@
 import {ref, reactive, onMounted, onBeforeUnmount, watchEffect} from 'vue';
 import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
-import {IConvTaskList, ITaskListKey} from '../../../../../models/TaskModels.ts';
+import {IConvTaskList, ITaskListKey} from '../../../../../../models/TaskModels.ts';
+
+const props = defineProps<{ path: string, searchString: string, elements: IConvTaskList[], handleMore: Function }>();
 
 const store = useStore();
+const taskModule = store.state.taskModule;
 const router = useRouter();
 const filterableTaskList = ref<IConvTaskList[]>([]);
 const columnsName: string[] = ["ID", "Название", "Статус", "Приоритет"];
@@ -49,6 +53,8 @@ const columnsValue: ITaskListKey[] = ["task_id", "name", "status", "priority"];
 const columnWidths = reactive([30, 100, 85, 85]);
 const tableWidth = ref(299); // Ширина таблицы для ограничения и скролла
 const wrapperWidth = ref(299);
+const observer = ref(null);
+let observe: IntersectionObserver | null = null;
 
 const maxWithList: number = 500;
 
@@ -93,13 +99,23 @@ const stopResizing = () => {
 
 onMounted(() => {
   document.addEventListener('mouseup', stopResizing);
+  if (observer.value) {
+    observe = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        props.handleMore()
+      }
+    }, {rootMargin: '0px 0px 100px 0px', threshold: 0.1})
+    observe.observe(observer.value)
+  }
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('mouseup', stopResizing);
+  if (observe) {
+    observe.disconnect();
+  }
 });
 
-const props = defineProps<{ path: string, searchString: string, elements: IConvTaskList[] }>();
 
 const handleClick = (taskId: number) => {
   router.push(`/${props.path}/${taskId}`);
@@ -113,21 +129,29 @@ watchEffect(() => {
 
 <style scoped>
 .table-wrapper {
-  overflow-x: auto;
   flex-grow: 1;
+  min-width: 299px;
   max-width: 500px;
-}
-
-.table-container {
   display: flex;
   flex-direction: column;
-  min-width: 299px;
+  overflow: auto;
 }
 
 .table-row {
   display: flex;
   width: 100%;
   cursor: pointer;
+}
+
+.table-body {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.table-data {
+  height: 2.5rem;
+  align-items: center;
+  border-bottom: 1px solid var(--neutral-400);
 }
 
 .table-cell {
@@ -142,6 +166,7 @@ watchEffect(() => {
   font-weight: bold;
   padding-bottom: 5px;
   cursor: default;
+  flex-shrink: 0;
 }
 
 .resize-handle {

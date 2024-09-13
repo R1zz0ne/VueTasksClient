@@ -55,16 +55,17 @@ class SocketEmit {
     }
 
     //projects
-    async createProjectEmit(data: ICreateProjectEmit): Promise<any> {
-        return await this.#createPromiseEmit('createProject', data);
+    createProjectEmit(data: ICreateProjectEmit): void {
+        // return await this.#createPromiseEmit('createProject', data);
+        this.socket.emit('createProject', data)
     }
 
     updateProjectEmit(data: IDataForUpdateProject): void {
         this.socket.emit('updateProject', data);
     }
 
-    async getProjectListEmit(): Promise<any> {
-        return await this.#createPromiseEmit('getProjectList', null)
+    async getProjectListEmit(page: number): Promise<any> {
+        this.socket.emit('getProjectList', {page})
     }
 
     async getProjectEmit(data: { projectId: number }): Promise<any> {
@@ -96,12 +97,12 @@ class SocketEmit {
         this.socket.emit('updateTaskEditor', data);
     }
 
-    async getTaskListEmit(): Promise<any> {
-        return await this.#createPromiseEmit('getTaskList', null);
+    async getTaskListEmit(page: number): Promise<any> {
+        this.socket.emit('getTaskList', {page})
     }
 
-    async getCloseTaskListEmit(): Promise<any> {
-        return await this.#createPromiseEmit('getCloseTaskList', null);
+    async getCloseTaskListEmit(page: number): Promise<any> {
+        this.socket.emit('getCloseTaskList', {page})
     }
 
     //notification

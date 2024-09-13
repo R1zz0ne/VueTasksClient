@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import TaskList from "./TaskList.vue";
+import TaskList from "./TaskList/TaskList.vue";
 import Task from "./Task/Task.vue";
 import {useStore} from "vuex";
 

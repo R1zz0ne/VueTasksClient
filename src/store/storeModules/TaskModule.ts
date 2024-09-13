@@ -14,7 +14,13 @@ export const TaskModule: Module<ITaskModuleState, any> = {
     state: () => ({
         currentTask: {} as ITaskResponse,
         taskList: [] as ITaskList[],
-        taskRoom: [] as Pick<IUser, 'user_id' | 'name'>[]
+        taskListMode: 'active',
+        taskRoom: [] as Pick<IUser, 'user_id' | 'name'>[],
+        pageInfo: {
+            page: 1,
+            totalPages: 0,
+            totalRecords: 0
+        }
     }),
     getters: {},
     mutations: {
@@ -27,7 +33,12 @@ export const TaskModule: Module<ITaskModuleState, any> = {
             }
         },
         setTaskList(state, taskList: ITaskList[]) {
-            state.taskList = taskList;
+            if (state.taskList.length < state.pageInfo.totalRecords) {
+                state.taskList = [...state.taskList, ...taskList];
+            }
+        },
+        cleanTaskList(state) {
+            state.taskList = []
         },
         updateTaskInfoInList(state, task: ITaskInfoInList) {
             const index = state.taskList.findIndex((taskInArr) => taskInArr.task_id === task.task_id)
@@ -49,6 +60,32 @@ export const TaskModule: Module<ITaskModuleState, any> = {
             if (task.task_id === state.currentTask.task_id) {
                 state.currentTask.status = task.status;
             }
+        },
+        setCurrentPage(state, page: number) {
+            state.pageInfo.page = page;
+        },
+        setTotalRecords(state, totalRecords: number) {
+            const totalPages = Math.ceil(totalRecords / 20);
+            state.pageInfo.totalRecords = totalRecords;
+            state.pageInfo.totalPages = totalPages;
+        },
+        setTaskListMode(state, taskListMode: 'active' | 'completed') {
+            state.taskListMode = taskListMode;
+        },
+        addNewTaskInList(state, task: ITaskList) {
+            console.log(state.pageInfo.totalPages)
+            const isLastPage: boolean = state.pageInfo.totalPages === state.pageInfo.page;
+            const countInLastPage: number = (state.pageInfo.page * 20) - state.pageInfo.totalRecords;
+            const totalRecords: number = state.pageInfo.totalRecords + 1;
+            const totalPages = Math.ceil(totalRecords / 20);
+            state.pageInfo.totalRecords = totalRecords;
+            state.pageInfo.totalPages = totalPages;
+            if (isLastPage && countInLastPage > 0) {
+                state.taskList = [...state.taskList, task]
+            } else if (state.pageInfo.totalPages === 0) {
+                console.log(state.pageInfo.totalPages)
+                state.taskList = [...state.taskList, task]
+            }
         }
     },
     actions: {
@@ -68,18 +105,16 @@ export const TaskModule: Module<ITaskModuleState, any> = {
                 setError(e)
             }
         },
-        async getTaskListAC({commit}) {
+        async getTaskListAC({commit}, data: ITaskList[]) {
             try {
-                const response: ITaskList[] = await SocketEmit.getTaskListEmit();
-                commit('setTaskList', response)
+                commit('setTaskList', data)
             } catch (e) {
                 setError(e)
             }
         },
-        async getCloseTaskListAC({commit}) {
+        async getCloseTaskListAC({commit}, data: ITaskList[]) {
             try {
-                const response: ITaskList[] = await SocketEmit.getCloseTaskListEmit();
-                commit('setTaskList', response)
+                commit('setTaskList', data)
             } catch (e) {
                 setError(e)
             }
@@ -106,6 +141,31 @@ export const TaskModule: Module<ITaskModuleState, any> = {
                 commit('updateTaskInfoInList', data)
             } catch (e) {
                 setError(e)
+            }
+        },
+        async setTotalRecords({commit}, data: { totalCount: number }) {
+            try {
+                commit('setTotalRecords', data.totalCount)
+            } catch (e) {
+                setError(e)
+            }
+        },
+        async resetAction({commit}) {
+            try {
+                commit('setCurrentTask', {})
+                commit('setTaskRoom', [])
+                commit('cleanTaskList')
+                commit('setCurrentPage', 1)
+                commit('setTotalRecords', 0)
+            } catch (e) {
+                setError(e)
+            }
+        },
+        async addNewTaskInList({commit, state}, data: ITaskList) {
+            if (data.status === 'completed' && state.taskListMode === 'completed') {
+                commit('addNewTaskInList', data)
+            } else if (data.status !== 'completed' && state.taskListMode === 'active') {
+                commit('addNewTaskInList', data)
             }
         }
     }

@@ -1,5 +1,6 @@
 import {taskPriorityMap, taskStatusMap} from "../utils/constants.ts";
 import {IUser} from "./UserModels.ts";
+import {IPageInfo} from "./otherModels.ts";
 
 export interface ITaskResponse {
     task_id: number,
@@ -46,7 +47,9 @@ export interface ITaskRequestUpdStatus extends Pick<ITaskResponse, 'task_id' | '
 export interface ITaskModuleState {
     currentTask: ITaskResponse,
     taskList: ITaskList[],
-    taskRoom: Pick<IUser, 'user_id' | 'name'>[]
+    taskListMode: 'active' | 'completed',
+    taskRoom: Pick<IUser, 'user_id' | 'name'>[],
+    pageInfo: IPageInfo
 }
 
 export interface ITaskUpdateRequest extends ITaskRequest {

@@ -5,13 +5,15 @@
         <m-input v-model="searchInput" style="height: 28px" placeholder="Поиск..."></m-input>
         <m-button @click="setMode('create', true)">+</m-button>
       </div>
-      <list-items path="projects" :search-string="searchInput"></list-items>
-      <div class="pag">TODO: paginations</div>
+      <list-items path="projects"
+                  :search-string="searchInput"
+                  v-if="projectState.projectList.length > 0"
+      ></list-items>
+      <div v-else class="listItems"></div>
+      <div class="pag">Кол-во записей: {{ projectState.pageInfo.totalRecords }}</div>
     </div>
     <div class="contentConteiner">
-      <project v-if="$route.params.id && projectState.currentProject.project_id" :mode="mode"
-               :set-mode="setMode"></project>
-      <div v-else></div>
+      <project :mode="mode" :set-mode="setMode"></project>
     </div>
   </div>
 </template>
@@ -81,5 +83,9 @@ input {
   height: 100%;
   text-align: center;
   padding: 5px;
+}
+
+.listItems {
+  flex-grow: 1;
 }
 </style>

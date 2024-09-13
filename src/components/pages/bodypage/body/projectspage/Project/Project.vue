@@ -1,7 +1,9 @@
 <template>
   <div class="content">
-    <project-view v-if="mode === 'view' && $route.params.id" :set-mode="setMode"></project-view>
-    <project-edit v-if="mode === 'edit' && $route.params.id" :set-mode="setMode"></project-edit>
+    <project-view v-if="mode === 'view' && $route.params.id && projectState.currentProject.project_id"
+                  :set-mode="setMode"></project-view>
+    <project-edit v-if="mode === 'edit' && $route.params.id && projectState.currentProject.project_id"
+                  :set-mode="setMode"></project-edit>
     <project-create v-if="mode === 'create'" :setMode="setMode"></project-create>
   </div>
 </template>
@@ -26,7 +28,6 @@ const joinRoom = (project_id: number) => {
 }
 const leaveRoom = (project_id: number) => {
   SocketEmit.leaveRoom({type: 'project', id: project_id});
-  store.commit('projectModule/setCurrentProject', {})
   store.commit('projectModule/setProjectRoom', [])
 }
 

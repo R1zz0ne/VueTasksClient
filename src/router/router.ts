@@ -7,6 +7,7 @@ import NoContentPage from "../components/pages/bodypage/body/NoContentPage.vue";
 import TasksPage from "../components/pages/bodypage/body/taskPage/TasksPage.vue";
 import ProjectsPage from "../components/pages/bodypage/body/projectspage/ProjectsPage.vue";
 import BoardPage from "../components/pages/bodypage/body/boardPage/BoardPage.vue";
+import SocketEmit from "../api/socketEmit.ts";
 
 const routes = [
     {
@@ -40,11 +41,7 @@ const routes = [
                 ],
                 beforeEnter: async () => {
                     const store = useStore()
-                    try {
-                        await store.dispatch('taskModule/getTaskListAC')
-                    } catch (e) {
-                        console.log('Произошла ошибка при получении списка задач (router)') //TODO: закинуть это все в setError
-                    }
+                    await SocketEmit.getTaskListEmit(store.state.taskModule.pageInfo.page);
                 }
             },
             {
@@ -60,11 +57,7 @@ const routes = [
                 ],
                 beforeEnter: async () => {
                     const store = useStore()
-                    try {
-                        await store.dispatch('projectModule/getProjectListAC')
-                    } catch (e) {
-                        console.log('Произошла ошибка при получении списка проектов (router)') //TODO: закинуть это все в setError
-                    }
+                    await SocketEmit.getProjectListEmit(store.state.projectModule.pageInfo.page);
                 }
             },
             {
@@ -80,11 +73,7 @@ const routes = [
                 ],
                 beforeEnter: async () => {
                     const store = useStore()
-                    try {
-                        await store.dispatch('projectModule/getProjectListAC')
-                    } catch (e) {
-                        console.log('Произошла ошибка при получении списка проектов (router)') //TODO: закинуть это все в setError
-                    }
+                    await SocketEmit.getProjectListEmit(store.state.projectModule.pageInfo.page);
                 }
             }
         ]

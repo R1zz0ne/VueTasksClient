@@ -28,17 +28,18 @@ router.beforeEach((to, from, next) => {
   if (from.name === 'tasks' && to.name !== 'tasks') {
     if (from.params.id) {
       SocketEmit.leaveRoom({type: 'task', id: Number(from.params.id)})
-      store.commit('taskModule/setCurrentTask', {})
-      store.commit('taskModule/setTaskRoom', [])
     }
+    store.dispatch('taskModule/resetAction')
     SocketEmit.leaveRoom({type: 'taskList'})
   }
   if (from.name === 'projects' && to.name !== 'projects') {
+    if (to.name !== 'board') {
+      store.commit('projectModule/setCurrentProject', {})
+    }
     if (from.params.id) {
       SocketEmit.leaveRoom({type: 'project', id: Number(from.params.id)})
-      store.commit('projectModule/setCurrentProject', {})
-      store.commit('projectModule/setProjectRoom', [])
     }
+    store.dispatch('projectModule/resetProjectAction');
     SocketEmit.leaveRoom({type: 'projectList'})
   }
   if (from.name === 'board' && to.name !== 'board') {
@@ -58,7 +59,7 @@ router.beforeEach((to, from, next) => {
   display: grid;
   height: 100lvh;
   grid-template-columns: 200px auto;
-  grid-template-rows: 50px auto;
+  grid-template-rows: 50px calc(100lvh - 50px);
 }
 
 .header {

@@ -13,5 +13,5 @@ const app = createApp(App);
 app.use(router)
 app.use(store)
 app.component('VueDatePicker', VueDatePicker)
-setupSocketListeners(store);
+setupSocketListeners(store, router);
 app.mount('#app')

@@ -2,13 +2,14 @@ import {Store} from "vuex";
 import SocketEmit from "./socketEmit.ts";
 import {setError} from "../services/setError.ts";
 import {INotificationsLog} from "../models/NotificationModels.ts";
-import {ITaskRequestUpdStatus, ITaskResponse} from "../models/TaskModels.ts";
+import {ITaskList, ITaskRequestUpdStatus, ITaskResponse} from "../models/TaskModels.ts";
 import {IUser} from "../models/UserModels.ts";
-import {IProject} from "../models/ProjectModels.ts";
+import {IProject, IProjectList} from "../models/ProjectModels.ts";
+import {Router} from "vue-router";
 
 const socket = SocketEmit.socket;
 
-const setupSocketListeners = (store: Store<any>) => {
+const setupSocketListeners = (store: Store<any>, router: Router) => {
     socket.on('error', (data) => {
         setError(data)
     })
@@ -49,7 +50,28 @@ const setupSocketListeners = (store: Store<any>) => {
         await store.dispatch('taskModule/updateStatusTask', data)
     })
 
+    socket.on('taskTotalCount', async (data: { totalCount: number }) => {
+        await store.dispatch('taskModule/setTotalRecords', data)
+    })
+
+    socket.on('getTaskList', async (data: ITaskList[]) => {
+        await store.dispatch('taskModule/getTaskListAC', data)
+    })
+
+    socket.on('getCloseTaskList', async (data: ITaskList[]) => {
+        await store.dispatch('taskModule/getCloseTaskListAC', data)
+    })
+
+    socket.on('addNewTaskInList', async (data: ITaskList) => {
+        await store.dispatch('taskModule/addNewTaskInList', data)
+    })
+
     //projects
+    socket.on('createProject', async (data: IProject) => {
+        await store.dispatch('projectModule/createProjectAC', data)
+        await router.push(`/projects/${data.project_id}`)
+    })
+
     socket.on('project_room', async (data: Pick<IUser, 'user_id' | 'name'>[]) => {
         await store.dispatch('projectModule/setProjectRoom', data)
     })
@@ -64,6 +86,18 @@ const setupSocketListeners = (store: Store<any>) => {
 
     socket.on('updateProjectEditor', async (data: Pick<IProject, 'project_id' | 'editor'>) => {
         await store.dispatch('projectModule/updateProjectEditor', data)
+    })
+
+    socket.on('projectTotalCount', async (data: { totalCount: number }) => {
+        await store.dispatch('projectModule/setTotalRecords', data)
+    })
+
+    socket.on('getProjectList', async (data: IProjectList[]) => {
+        await store.dispatch('projectModule/getProjectListAC', data)
+    })
+
+    socket.on('addNewProjectInList', async (data: IProjectList) => {
+        await store.dispatch('projectModule/addNewProjectInList', data)
     })
 }
 
