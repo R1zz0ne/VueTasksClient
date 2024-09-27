@@ -32,11 +32,17 @@ class SocketEmit {
     }
 
     async loginEmit(data: IAuthForm): Promise<any> {
-        return await this.#createPromiseEmit('login', data);
+        const response = await this.#createPromiseEmit('login', data);
+        (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
+        this.socket.disconnect().connect();
+        return response
     }
 
     async registrationEmit(data: IRegForm): Promise<any> {
-        return await this.#createPromiseEmit('registration', data);
+        const response = await this.#createPromiseEmit('registration', data);
+        (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
+        this.socket.disconnect().connect();
+        return response
     }
 
     async logoutEmit(data: { refreshToken: string | null }): Promise<any> {
@@ -56,7 +62,6 @@ class SocketEmit {
 
     //projects
     createProjectEmit(data: ICreateProjectEmit): void {
-        // return await this.#createPromiseEmit('createProject', data);
         this.socket.emit('createProject', data)
     }
 
