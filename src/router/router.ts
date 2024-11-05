@@ -1,24 +1,24 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {useStore} from "vuex";
-import Authorizationpage from "../components/pages/authorizationpage/authorizationpage.vue";
-import Registrationpage from "../components/pages/registrationpage/registrationpage.vue";
-import AppPage from "../components/AppPage.vue";
-import NoContentPage from "../components/pages/bodypage/body/NoContentPage.vue";
-import TasksPage from "../components/pages/bodypage/body/taskPage/TasksPage.vue";
-import ProjectsPage from "../components/pages/bodypage/body/projectspage/ProjectsPage.vue";
-import BoardPage from "../components/pages/bodypage/body/boardPage/BoardPage.vue";
 import SocketEmit from "../api/socketEmit.ts";
+import AuthorizationPage from "../components/pages/authorizationPage/AuthorizationPage.vue";
+import RegistrationPage from "../components/pages/registrationPage/RegistrationPage.vue";
+import AppPage from "../components/AppPage.vue";
+import NoContentPage from "../components/pages/bodyPage/body/NoContentPage.vue";
+import TasksPage from "../components/pages/bodyPage/body/taskPage/TasksPage.vue";
+import ProjectsPage from "../components/pages/bodyPage/body/projectsPage/ProjectsPage.vue";
+import BoardPage from "../components/pages/bodyPage/body/boardPage/BoardPage.vue";
 
 const routes = [
     {
         path: '/authorization',
         name: 'authorization',
-        component: Authorizationpage
+        component: AuthorizationPage
     },
     {
         path: '/registration',
         name: 'registration',
-        component: Registrationpage
+        component: RegistrationPage
     },
     {
         path: '/',

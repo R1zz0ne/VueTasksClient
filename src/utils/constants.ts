@@ -1,4 +1,4 @@
-import {ITaskList} from "../models/TaskModels.ts";
+import {ITaskList} from "../models/taskModels.ts";
 
 export const datePickerFormat = (date: Date) => {
     const day = date.getDate();
@@ -24,7 +24,7 @@ export enum taskPriorityMap {
 
 export enum taskStatusMap {
     assigned = 'Назначено',
-    in_progress = 'В работе',
+    inProgress = 'В работе',
     completed = 'Завершено'
 }
 

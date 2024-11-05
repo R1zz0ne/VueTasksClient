@@ -1,5 +1,5 @@
 <template>
-  <div :class="[disabled && disabled === 'true' ? 'text_area_disabled' : 'text_area_active']"
+  <div :class="[disabled && disabled === 'true' ? 'text-area-disabled' : 'text-area-active']"
        :style="[rows ? `height: ${2+Number(rows)*16}px` : 'height:82px']">
   <textarea
       :class="[disabled && disabled === 'true' ? 'disabled' : 'active']"
@@ -57,13 +57,13 @@ textarea {
   display: inline-block;
 }
 
-.text_area_active {
+.text-area-active {
   border-radius: 10px;
   overflow: hidden;
   padding: -1px;
 }
 
-.text_area_disabled {
+.text-area-disabled {
   border-radius: 0;
   overflow: hidden;
 }

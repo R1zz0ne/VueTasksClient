@@ -1,6 +1,6 @@
 <template>
   <div class="dialog" v-if="show" @click.stop="hideDialog">
-    <div class="dialogContent" @click.stop>
+    <div class="dialog-content" @click.stop>
       <slot></slot>
     </div>
   </div>
@@ -31,7 +31,7 @@ const hideDialog = () => {
   z-index: 998;
 }
 
-.dialogContent {
+.dialog-content {
   margin: auto;
   background: var(--neutral-300);
   border-radius: 12px;

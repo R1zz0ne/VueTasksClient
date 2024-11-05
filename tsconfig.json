@@ -4,12 +4,8 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.AsyncIterable"], //первый изменен с ES2020
-    "skipLibCheck": true,
-    "moduleResolution": "node", //изменено с bundler
-    //    "moduleResolution": "bundler",
-    "allowJs": true, //добавлено
+    "moduleResolution": "node", //bundler
     "esModuleInterop": true, //добавлено
-
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

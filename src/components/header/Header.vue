@@ -13,7 +13,7 @@ import MButton from "../ui/MButton.vue";
 import {useStore} from "vuex";
 import {Ref, ref} from "vue";
 import MDialog from "../ui/MDialog.vue";
-import NotificationLog from "./notificationLog/notificationLog.vue";
+import NotificationLog from "./notificationLog/NotificationLog.vue";
 
 const isVisible: Ref<boolean> = ref(false);
 

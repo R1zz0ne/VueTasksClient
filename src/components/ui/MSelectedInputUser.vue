@@ -1,16 +1,16 @@
 <template>
-  <div class="mSelInput" ref="selInputRef">
-    <div class="selInput">
+  <div class="m-sel-input" ref="selInputRef">
+    <div class="sel-input">
       <m-input v-model="inputValue"
                @focusin="isFocus.wasFocus = isFocus.focus; isFocus.focus = true"
                @focusout="isFocus.wasFocus = isFocus.focus; isFocus.focus = false"
-               :class="[resArray.length>0 ? 'ifSelectedInput': '']"
+               :class="[resArray.length>0 ? 'if-selected-input': '']"
       >
       </m-input>
       <search-s-v-g></search-s-v-g>
     </div>
     <div v-if="resArray.length > 0" class="selected">
-      <div v-for="element in resArray" class="selectedElement" @click="onSelectUser(element)" :key="element.user_id">
+      <div v-for="element in resArray" class="selected-element" @click="onSelectUser(element)" :key="element.userId">
         <span>{{ element.name }}</span>
         <info-s-v-g class="info">
           <title>{{element.email}}</title>
@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import MInput from "./MInput.vue";
 import {ref, watchEffect} from "vue";
-import {IUser} from "../../models/UserModels.ts";
+import {IUser} from "../../models/userModels.ts";
 import SearchSVG from "./svg/SearchSVG.vue";
 import InfoSVG from "./svg/InfoSVG.vue";
 import {onClickOutside} from "@vueuse/core"
@@ -32,7 +32,7 @@ import {setError} from "../../services/setError.ts";
 
 interface IProps {
   selectUser: {
-    user_id: number,
+    userId: number,
     name: string
   },
   setSelectUser: Function
@@ -52,7 +52,7 @@ const resetValue = () => {
 }
 resetValue();
 const onSelectUser = (user: IUser) => {
-  setSelectUser({user_id: user.user_id, name: user.name});
+  setSelectUser({userId: user.userId, name: user.name});
   inputValue.value = user.name;
   resArray.value = []
   isFocus.value.wasFocus = false;
@@ -70,7 +70,7 @@ onClickOutside(selInputRef, handleClickOutside)
 
 watchEffect(async () => {
       if (!inputValue.value.trim()) {
-        setSelectUser({user_id: 0, name: ''})
+        setSelectUser({userId: 0, name: ''})
       } else if (selectUser.name !== inputValue.value) {
         try {
           const response: IUser[] = await SocketEmit.getUsersEmit({query: inputValue.value})
@@ -86,16 +86,16 @@ watchEffect(async () => {
 </script>
 
 <style scoped>
-.mSelInput {
+.m-sel-input {
   width: calc(100% - 145px);
 }
 
-.ifSelectedInput {
+.if-selected-input {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0
 }
 
-.selInput {
+.sel-input {
   input {
     width: 100%;
   }
@@ -116,7 +116,7 @@ watchEffect(async () => {
   background-color: var(--neutral-200);
 }
 
-.selectedElement {
+.selected-element {
   cursor: pointer;
   height: 20px;
   display: flex;

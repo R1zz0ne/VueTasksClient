@@ -1,7 +1,19 @@
 import {io} from "socket.io-client";
-import {IAuthForm, IAuthResponse, IRegForm} from "../models/UserModels.ts";
-import {ICreateProjectEmit, IDataForUpdateProject, IProjectUpdateEditor} from "../models/ProjectModels.ts";
-import {ITaskRequest, ITaskRequestUpdStatus, ITaskUpdateEditor, ITaskUpdateRequest} from "../models/TaskModels.ts";
+import {IAuthForm, IAuthResponse, IRegForm, IUser} from "../models/userModels.ts";
+import {
+    ICreateProjectEmit,
+    IDataForUpdateProject,
+    IProjectResponse,
+    IProjectUpdateEditor
+} from "../models/projectModels.ts";
+import {
+    ITaskRequest,
+    ITaskRequestUpdStatus,
+    ITaskResponse,
+    ITaskUpdateEditor,
+    ITaskUpdateRequest
+} from "../models/taskModels.ts";
+import {INotificationsLog} from "../models/notificationModels.ts";
 
 
 class SocketEmit {
@@ -11,10 +23,10 @@ class SocketEmit {
         },
     })
 
-    async #createPromiseEmit(event: string, data: any, isRetry = false): Promise<any> {
+    async #createPromiseEmit(event: string, data: any, isRetry: boolean = false): Promise<any> {
         return new Promise((resolve, reject) => {
             this.socket.emit(event, data, async (response: any) => {
-                if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) {
+                if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) { //TODO: Делать сравнение по коду
                     try {
                         await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
                         const retryResponse = await this.#createPromiseEmit(event, data, true)
@@ -22,7 +34,7 @@ class SocketEmit {
                     } catch (e) {
                         reject(e);
                     }
-                } else if (response.type === 'error' && response.message !== 'Пользователь не авторизован') {
+                } else if (response.type === 'error' && response.message !== 'Пользователь не авторизован') { //TODO: Делать сравнение по коду
                     reject(response);
                 } else {
                     resolve(response);
@@ -31,32 +43,32 @@ class SocketEmit {
         })
     }
 
-    async loginEmit(data: IAuthForm): Promise<any> {
-        const response = await this.#createPromiseEmit('login', data);
+    async loginEmit(data: IAuthForm): Promise<IAuthResponse> {
+        const response: IAuthResponse = await this.#createPromiseEmit('login', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
-    async registrationEmit(data: IRegForm): Promise<any> {
-        const response = await this.#createPromiseEmit('registration', data);
+    async registrationEmit(data: IRegForm): Promise<IAuthResponse> {
+        const response: IAuthResponse = await this.#createPromiseEmit('registration', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
-    async logoutEmit(data: { refreshToken: string | null }): Promise<any> {
+    async logoutEmit(data: { refreshToken: string | null }): Promise<[]> {
         return await this.#createPromiseEmit('logout', data);
     }
 
-    async refreshEmit(data: { refreshToken: string | null }): Promise<any> {
-        const response = await this.#createPromiseEmit('refresh', data);
+    async refreshEmit(data: { refreshToken: string | null }): Promise<IAuthResponse> {
+        const response: IAuthResponse = await this.#createPromiseEmit('refresh', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
-    async getUsersEmit(data: { query: string }): Promise<any> {
+    async getUsersEmit(data: { query: string }): Promise<IUser[]> {
         return await this.#createPromiseEmit('getUsers', data);
     }
 
@@ -69,11 +81,11 @@ class SocketEmit {
         this.socket.emit('updateProject', data);
     }
 
-    async getProjectListEmit(page: number): Promise<any> {
+    async getProjectListEmit(page: number): Promise<void> {
         this.socket.emit('getProjectList', {page})
     }
 
-    async getProjectEmit(data: { projectId: number }): Promise<any> {
+    async getProjectEmit(data: { projectId: number }): Promise<IProjectResponse> {
         return await this.#createPromiseEmit('getProject', data);
     }
 
@@ -90,7 +102,7 @@ class SocketEmit {
     }
 
     //tasks
-    async getTaskEmit(data: { taskId: number }): Promise<any> {
+    async getTaskEmit(data: { taskId: number }): Promise<ITaskResponse> {
         return await this.#createPromiseEmit('getTask', data);
     }
 
@@ -102,21 +114,21 @@ class SocketEmit {
         this.socket.emit('updateTaskEditor', data);
     }
 
-    async getTaskListEmit(page: number): Promise<any> {
+    async getTaskListEmit(page: number): Promise<void> {
         this.socket.emit('getTaskList', {page})
     }
 
-    async getCloseTaskListEmit(page: number): Promise<any> {
+    async getCloseTaskListEmit(page: number): Promise<void> {
         this.socket.emit('getCloseTaskList', {page})
     }
 
     //notification
-    getNotificationLogEmit() {
+    getNotificationLogEmit(): void {
         this.socket.emit('getNotification', null);
     }
 
-    async checkNotificationEmit(notification_id: number): Promise<any> {
-        return await this.#createPromiseEmit('checkNotification', {notification_id});
+    async checkNotificationEmit(notificationId: number): Promise<Pick<INotificationsLog, 'notificationId' | 'isChecked'>> {
+        return await this.#createPromiseEmit('checkNotification', {notificationId});
     }
 
     //Room

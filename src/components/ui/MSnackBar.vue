@@ -1,8 +1,8 @@
 <template>
   <div class="snackbar" v-if="show">
-    <div class="msg_block" :class="type">
+    <div class="msg-block" :class="type">
       <span>{{ text }}</span>
-      <m-button type="none" @click="handleClick" class="closeBtn">
+      <m-button type="none" @click="handleClick" class="close-btn">
         <close-s-v-g style="vertical-align: center" :stroke="type"/>
       </m-button>
     </div>
@@ -13,17 +13,17 @@
 import CloseSVG from "./svg/CloseSVG.vue";
 import MButton from "./MButton.vue";
 
-const {show, text, type, close_snackbar} = defineProps({
+const {show, text, type, closeSnackbar} = defineProps({
   show: Boolean,
   text: String,
   type: String,
-  close_snackbar: {
+  closeSnackbar: {
     type: Function,
     required: true
   },
 })
 const handleClick = () => {
-  close_snackbar();
+  closeSnackbar();
 }
 </script>
 
@@ -38,7 +38,7 @@ const handleClick = () => {
   z-index: 999;
 }
 
-.msg_block {
+.msg-block {
   display: flex;
   flex-direction: row;
   border-radius: 10px;
@@ -48,7 +48,7 @@ const handleClick = () => {
   align-items: center;
 }
 
-.closeBtn {
+.close-btn {
   height: 1rem;
   width: 1rem;
   padding: 0;

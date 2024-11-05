@@ -1,9 +1,10 @@
 <template>
   <select
       :value="modelValue"
-      @input="onInput(($event.target as HTMLSelectElement).value)"
+
+      @change="onChange"
   >
-    <option v-for="(value, name) in elements"
+    <option v-for="(value, name) in validElements"
             :value="name"
             :key="name"
     >{{ value }}
@@ -12,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import {computed, ref, watch} from "vue";
+
 interface ISelectProps {
   modelValue: any,
   elements: any,
@@ -22,13 +25,26 @@ const {modelValue, elements, type} = defineProps<ISelectProps>()
 
 const emits = defineEmits(['update:modelValue']);
 
-const onInput = (value: string) => {
-  if (type === 'number') {
-    emits('update:modelValue', Number(value))
+const onChange = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  if (type === "number") {
+    emits('update:modelValue', Number(value));
   } else {
-    emits('update:modelValue', value)
+    emits('update:modelValue', value);
   }
 }
+
+const validElements = computed(() => {
+  return typeof elements === 'object' && elements !== null && !Array.isArray(elements)
+      ? elements
+      : {}
+})
+const selectRef = ref<HTMLSelectElement | null>(null);
+watch(() => modelValue, (newValue) => {
+  if (selectRef.value && selectRef.value.value !== newValue) {
+    selectRef.value.value = newValue;
+  }
+})
 </script>
 
 <style scoped>

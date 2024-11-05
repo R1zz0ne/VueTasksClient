@@ -1,15 +1,14 @@
 <template>
-  <button :class="[type ? type : 'primary']">
+  <button :class="[validatedType]">
     <slot/>
   </button>
 </template>
 
 <script setup lang="ts">
-interface IPropsMButton {
-  type?: 'primary' | 'success' | 'danger' | 'none'
-}
+import {IPropsMButton} from "../../models/UIComponsentsModels.ts";
 
 const {type} = defineProps<IPropsMButton>()
+const validatedType = type && ['primary', 'success', 'danger', 'none'].includes(type) ? type : 'primary'
 </script>
 
 <style scoped>
@@ -26,9 +25,11 @@ button {
   background-color: var(--primary-500);
   color: var(--neutral-100);
 }
+
 .primary:hover, .primary:focus {
   background-color: var(--primary-600);
 }
+
 .primary:active {
   background-color: var(--primary-700);
   color: var(--neutral-50);
@@ -38,9 +39,11 @@ button {
   background-color: var(--success-500);
   color: var(--neutral-100);
 }
+
 .success:hover, .success:focus {
   background-color: var(--success-600);
 }
+
 .success:active {
   background-color: var(--success-700);
   color: var(--neutral-50);
@@ -50,9 +53,11 @@ button {
   background-color: var(--danger-500);
   color: var(--neutral-100);
 }
+
 .danger:hover, .danger:focus {
   background-color: var(--danger-600);
 }
+
 .danger:active {
   background-color: var(--danger-700);
   color: var(--neutral-50);

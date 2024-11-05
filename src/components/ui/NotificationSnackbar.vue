@@ -1,5 +1,5 @@
 <template>
-  <m-snack-bar :show="show" :text="text" :type="type" :close_snackbar="closeSnackbar" />
+  <m-snack-bar :show="show" :text="text" :type="type" :closeSnackbar="closeSnackbar"/>
 </template>
 
 <script setup lang="ts">
