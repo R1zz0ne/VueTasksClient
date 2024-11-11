@@ -23,15 +23,12 @@ export interface IProject {
     description: string,
     owner: IUser,
     tasks: ITaskShort[],
-    editor: {
-        userId: number,
-        name: string
-    } | null
+    editor: Pick<IUser, 'userId' | 'name'> | null
 }
 
 export interface IProjectProps {
     mode: string,
-    setMode: (value: 'view' | 'edit' | 'create', updateEditor: boolean) => void
+    setMode: (value: IProjectVisibleMode, updateEditor: boolean) => void
 }
 
 export interface ICreateProjectEmit {
@@ -56,3 +53,13 @@ export interface IProjectResponse {
         name: string
     } | null
 }
+
+export interface ICreateProjectForm extends Pick<IProject, 'name' | 'description'> {
+    owner: Pick<IUser, 'userId' | 'name'>
+}
+
+export interface IUpdateProjectForm extends ICreateProjectForm {
+    tasks: ITaskShort[]
+}
+
+export type IProjectVisibleMode = 'view' | 'edit' | 'create'

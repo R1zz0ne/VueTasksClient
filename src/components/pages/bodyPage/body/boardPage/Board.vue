@@ -42,32 +42,33 @@
 
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch, watchEffect} from "vue";
-import {useStore} from "vuex";
-import {ITaskShort, ITaskStatusMap} from "../../../../../models/taskModels.ts";
+import {Store, useStore} from "vuex";
+import {ITaskInfoInBoard, ITaskShort, ITaskStatusMap} from "../../../../../models/taskModels.ts";
 import SocketEmit from "../../../../../api/socketEmit.ts";
-import {useRoute} from "vue-router";
+import {RouteLocationNormalizedLoaded, useRoute} from "vue-router";
 import RecordFooter from "../RecordFooter.vue";
+import {key, State} from "../../../../../store/store.ts";
 
-const store = useStore();
-const route = useRoute();
+const store: Store<State> = useStore(key);
+const route: RouteLocationNormalizedLoaded = useRoute();
 
-const columns = ref({
-  assigned: [] as ITaskShort[],
-  inProgress: [] as ITaskShort[],
-  completed: [] as ITaskShort[]
+const columns = ref<ITaskInfoInBoard>({
+  assigned: [],
+  inProgress: [],
+  completed: []
 })
 
 let draggedTaskID: number | null = null;
 
-const onDragStart = (task: ITaskShort) => {
+const onDragStart = (task: ITaskShort): void => {
   draggedTaskID = task.taskId;
 };
 
-const onDragOver = (event: any) => {
+const onDragOver = (event: DragEvent): void => {
   event.preventDefault();
 };
 
-const onDrop = (targetStatus: ITaskStatusMap) => {
+const onDrop = (targetStatus: ITaskStatusMap): void => {
   SocketEmit.updateStatusTaskEmit({taskId: draggedTaskID!, status: targetStatus})
 };
 
@@ -76,7 +77,7 @@ const updateColumns = (tasksArray: ITaskShort[]) => {
   columns.value.inProgress = [];
   columns.value.completed = [];
 
-  tasksArray.forEach((task) => {
+  tasksArray.forEach((task): void => {
     switch (task.status) {
       case 'assigned':
         columns.value.assigned.push(task);
@@ -92,27 +93,26 @@ const updateColumns = (tasksArray: ITaskShort[]) => {
 };
 
 watchEffect(() => {
-  if (store.state.projectModule.currentProject.projectId) {
+  if (store.state.projectModule.currentProject.projectId) { //TODO: возможно какая-то дичь написана, зачем тригериться на current project
     updateColumns(store.state.projectModule.currentProject.tasks);
   } else {
-
   }
 })
 
 //rooms
-const joinRoom = (projectId: number) => {
+const joinRoom = (projectId: number): void => {
   SocketEmit.joinRoom({type: 'board', id: projectId})
 }
-const leaveRoom = (projectId: number) => {
+const leaveRoom = (projectId: number): void => {
   SocketEmit.leaveRoom({type: 'board', id: projectId})
   store.commit('projectModule/setCurrentProject', {})
   store.commit('projectModule/setBoardRoom', [])
 }
 
-onMounted(() => {
+onMounted((): void => {
   joinRoom(store.state.projectModule.currentProject.projectId)
 })
-onUnmounted(() => {
+onUnmounted((): void => {
   if (store.state.projectModule.currentProject.projectId) {
     leaveRoom(store.state.projectModule.currentProject.projectId)
   }

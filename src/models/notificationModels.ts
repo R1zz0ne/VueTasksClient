@@ -14,5 +14,5 @@ export interface INotificationsLog {
     name: string,
     message: string,
     isChecked: boolean,
-    createdAt: Object,
+    createdAt: string
 }

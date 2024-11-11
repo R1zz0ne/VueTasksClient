@@ -3,9 +3,9 @@
     <div class="field-block">
       <label class="title"># {{ projectStore.currentProject.projectId }}</label>
       <span class="title">{{ projectStore.currentProject.name }}</span>
-      <m-button class="btn-edit" @click="handleEdit" type="none">
-        <edit-s-v-g fill="var(--primary-600)" style="vertical-align: center"/>
-      </m-button>
+      <MButton class="btn-edit" @click="handleEdit" type="none">
+        <EditSVG fill="var(--primary-600)" style="vertical-align: center"/>
+      </MButton>
     </div>
     <div class="field-block">
       <label>Описание</label>
@@ -24,15 +24,15 @@
       <div class="tasks-title-block">
         <span>Список связанных задач</span>
         <div class="tasks-title-btn">
-          <m-button @click="$router.push(`/board/${projectStore.currentProject.projectId}`)">
+          <MButton @click="$router.push(`/board/${projectStore.currentProject.projectId}`)">
             Открыть доску
-          </m-button>
-          <m-button @click="changeDialogVisible(true)">Создать задачу</m-button>
+          </MButton>
+          <MButton @click="changeDialogVisible(true)">Создать задачу</MButton>
         </div>
-        <m-dialog v-model:show="dialogVisible" is-close="onlyButton">
+        <MDialog v-model:show="dialogVisible" is-close="onlyButton">
           <TaskCreate :set-dialog-visible="changeDialogVisible"
                       :project-id="projectStore.currentProject.projectId"></TaskCreate>
-        </m-dialog>
+        </MDialog>
       </div>
       <table>
         <tr>
@@ -41,63 +41,65 @@
           <th class="task-data">Желаемый срок</th>
           <th>Исполнитель</th>
         </tr>
-        <tr v-for="task in projectStore.currentProject.tasks" :key="task.id">
+        <tr v-for="task in projectStore.currentProject.tasks" :key="task.taskId">
           <td>
-            <m-link :click-func="getTaskAndVisible"
-                    :id="task.taskId"
-                    object="task">{{ task.name }}
-            </m-link>
+            <MLink :click-func="getTaskAndVisible"
+                   :id="task.taskId"
+                   object="task">{{ task.name }}
+            </MLink>
           </td>
           <td>{{ taskPriorityMap[task.priority] }}</td>
           <td>{{ new Date(task.completionDate).toLocaleString() }}</td>
           <td :title="task.member.email">{{ task.member.name }}</td>
         </tr>
       </table>
-      <m-dialog v-model:show="taskInfoVisible">
-        <task :change-task-info-visible="changeTaskInfoVisible"/>
-      </m-dialog>
+      <MDialog v-model:show="taskInfoVisible">
+        <Task :change-task-info-visible="changeTaskInfoVisible"/>
+      </MDialog>
     </div>
-    <record-footer :editor="projectStore.currentProject.editor" :viewers="projectStore.projectRoom"/>
+    <RecordFooter :editor="projectStore.currentProject.editor" :viewers="projectStore.projectRoom"/>
   </div>
   <div class="item-content" v-else></div>
 </template>
 
 <script setup lang="ts">
 import MButton from "../../../../../ui/MButton.vue";
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import MDialog from "../../../../../ui/MDialog.vue";
 import {ref} from "vue";
 import TaskCreate from "../../taskPage/task/TaskCreate.vue";
 import MLink from "../../../../../ui/MLink.vue";
 import Task from "../../taskPage/task/Task.vue";
 import EditSVG from "../../../../../ui/svg/EditSVG.vue";
-import {IProjectProps} from "../../../../../../models/projectModels.ts";
+import {IProjectModuleState, IProjectProps} from "../../../../../../models/projectModels.ts";
 import {taskPriorityMap} from "../../../../../../utils/constants.ts";
 import RecordFooter from "../../RecordFooter.vue";
 import {setError} from "../../../../../../services/setError.ts";
+import {key, State} from "../../../../../../store/store.ts";
 
-const dialogVisible = ref(false);
-const taskInfoVisible = ref(false);
-const store = useStore();
-const projectStore = store.state.projectModule;
+const dialogVisible = ref<boolean>(false);
+const taskInfoVisible = ref<boolean>(false);
+const store: Store<State> = useStore(key);
+const projectStore: IProjectModuleState = store.state.projectModule;
 
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
 
 
-const changeDialogVisible = (value: boolean) => {
+const changeDialogVisible = (value: boolean): void => {
   dialogVisible.value = value;
 }
-const changeTaskInfoVisible = (value: boolean) => {
+const changeTaskInfoVisible = (value: boolean): void => {
   taskInfoVisible.value = value;
 }
-const getTaskAndVisible = async (taskId: number) => {
+const getTaskAndVisible = async (taskId: number): Promise<void> => {
   await store.dispatch('taskModule/getTaskAC', taskId);
   changeTaskInfoVisible(true);
 }
 
-const handleEdit = () => {
+const handleEdit = (): void => {
   if (typeof projectStore.currentProject.editor?.userId === 'number') {
     setError({
+      type: "error",
       message: `Этот проект уже редактирует пользователь "${projectStore.currentProject.editor.name}", попробуйте позже`
     })
   } else {

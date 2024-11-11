@@ -3,48 +3,48 @@
     <span class="title">Редактирование задачи # {{ form.taskId }}</span>
     <div class="field-block">
       <label>Название</label>
-      <m-input v-model="form.name"></m-input>
+      <MInput v-model="form.name"></MInput>
     </div>
-    <m-error-message :errors="errors?.name"/>
+    <MErrorMessage :errors="errors?.name"/>
     <div class="field-block">
       <label>Статус</label>
-      <m-select v-model="form.status" :elements="taskStatusMap" type="string"/>
+      <MSelect v-model="form.status" :elements="taskStatusMap" type="string"/>
     </div>
     <div class="field-block">
       <label>Описание</label>
-      <m-input v-model="form.description"></m-input>
+      <MInput v-model="form.description"></MInput>
     </div>
-    <m-error-message :errors="errors?.description"/>
+    <MErrorMessage :errors="errors?.description"/>
     <div class="field-block">
       <label>Проект</label>
-      <m-input v-model="form.project.name" readonly></m-input>
+      <MInput v-model="form.project.name" readonly></MInput>
     </div>
     <div class="field-block">
       <label>Приоритет</label>
-      <m-select v-model="form.priority" :elements="taskPriorityMap" type="string"/>
+      <MSelect v-model="form.priority" :elements="taskPriorityMap" type="string"/>
     </div>
-    <m-error-message :errors="errors?.priority"/>
+    <MErrorMessage :errors="errors?.priority"/>
     <div class="field-block">
       <label>Желаемый срок</label>
-      <vue-date-picker
+      <VueDatePicker
           class="date-picker"
           v-model="form.completionDate"
           :flow="['calendar', 'time']"
           locale="ru"
           :format="datePickerFormat"
-      ></vue-date-picker>
+      ></VueDatePicker>
     </div>
-    <m-error-message :errors="errors?.completionDate"/>
+    <MErrorMessage :errors="errors?.completionDate"/>
     <div class="field-block">
       <label>Исполнитель</label>
-      <m-selected-input :set-select-user="setSelectUser" :select-user="form.member"></m-selected-input>
+      <MSelectedInput :set-select-user="setSelectUser" :select-user="form.member"></MSelectedInput>
     </div>
-    <m-error-message :errors="errors?.member?.userId"/>
+    <MErrorMessage :errors="errors?.member?.userId"/>
     <div class="btn-block">
-      <m-button @click.prevent="handleCancel" type="danger">Отмена</m-button>
-      <m-button @click.prevent="handleSubmit" type="success">Сохранить</m-button>
+      <MButton @click.prevent="handleCancel" type="danger">Отмена</MButton>
+      <MButton @click.prevent="handleSubmit" type="success">Сохранить</MButton>
     </div>
-    <record-footer :viewers="store.state.taskModule.taskRoom" :editor="store.state.taskModule.currentTask.editor"/>
+    <RecordFooter :viewers="store.state.taskModule.taskRoom" :editor="store.state.taskModule.currentTask.editor"/>
   </form>
 </template>
 
@@ -58,17 +58,20 @@ import {IUser} from "../../../../../../models/userModels.ts";
 import MSelect from "../../../../../ui/MSelect.vue";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
 import {datePickerFormat, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import RecordFooter from "../../RecordFooter.vue";
+import {key, State} from "../../../../../../store/store.ts";
+import {IUpdateTaskForm} from "../../../../../../models/taskModels.ts";
+import VueDatePicker from "@vuepic/vue-datepicker"
 
-const store = useStore();
-const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
+const store: Store<State> = useStore(key);
+const setSelectUser = (selectUser: Omit<IUser, 'email'>): void => {
   form.value.member.userId = selectUser.userId
   form.value.member.name = selectUser.name
 }
 
-const form = ref({
+const form = ref<IUpdateTaskForm>({
   taskId: store.state.taskModule.currentTask.taskId,
   name: store.state.taskModule.currentTask.name,
   description: store.state.taskModule.currentTask.description,
@@ -84,7 +87,7 @@ const form = ref({
   },
   status: store.state.taskModule.currentTask.status
 })
-const isTrySubmit = ref(false);
+const isTrySubmit = ref<boolean>(false);
 
 const formSchema = z.object({
   name: z.string()
@@ -101,8 +104,8 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>
 const errors = ref<z.ZodFormattedError<formSchemaType> | null>(null)
 
-const handleSubmit = async () => {
-  const validSchema = formSchema.safeParse(form.value);
+const handleSubmit = async (): Promise<void> => {
+  const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
   if (!validSchema.success) {
     errors.value = validSchema.error.format()
   } else {
@@ -122,11 +125,11 @@ const handleSubmit = async () => {
   isTrySubmit.value = true;
 }
 const {setMode} = defineProps<{ setMode: Function }>();
-const handleCancel = () => {
+const handleCancel = (): void => {
   setMode('view');
 }
 
-watchEffect(() => {
+watchEffect((): void => {
   if (isTrySubmit.value) {
     const validSchema = formSchema.safeParse(form.value);
     if (!validSchema.success) {

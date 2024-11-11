@@ -1,20 +1,20 @@
 <template>
   <div class="m-sel-input" ref="selInputRef">
     <div class="sel-input">
-      <m-input v-model="inputValue"
-               @focusin="isFocus.wasFocus = isFocus.focus; isFocus.focus = true"
-               @focusout="isFocus.wasFocus = isFocus.focus; isFocus.focus = false"
-               :class="[resArray.length>0 ? 'if-selected-input': '']"
+      <MInput v-model="inputValue"
+              @focusin="isFocus.wasFocus = isFocus.focus; isFocus.focus = true"
+              @focusout="isFocus.wasFocus = isFocus.focus; isFocus.focus = false"
+              :class="[resArray.length>0 ? 'if-selected-input': '']"
       >
-      </m-input>
-      <search-s-v-g></search-s-v-g>
+      </MInput>
+      <SearchSVG></SearchSVG>
     </div>
     <div v-if="resArray.length > 0" class="selected">
       <div v-for="element in resArray" class="selected-element" @click="onSelectUser(element)" :key="element.userId">
         <span>{{ element.name }}</span>
-        <info-s-v-g class="info">
+        <InfoSVG class="info">
           <title>{{element.email}}</title>
-        </info-s-v-g>
+        </InfoSVG>
       </div>
     </div>
   </div>
@@ -29,53 +29,44 @@ import InfoSVG from "./svg/InfoSVG.vue";
 import {onClickOutside} from "@vueuse/core"
 import SocketEmit from "../../api/socketEmit.ts";
 import {setError} from "../../services/setError.ts";
+import {IIsFocus, ISelectedInputUserProps} from "../../models/otherModels.ts";
 
-interface IProps {
-  selectUser: {
-    userId: number,
-    name: string
-  },
-  setSelectUser: Function
-}
+const {selectUser, setSelectUser} = defineProps<ISelectedInputUserProps>()
 
-const {selectUser, setSelectUser} = defineProps<IProps>()
-
-const resArray = ref([] as IUser[])
-const isFocus = ref({
+const resArray = ref<IUser[]>([])
+const isFocus = ref<IIsFocus>({
   wasFocus: false,
   focus: false
 });
-const inputValue = ref('');
-const resetValue = () => {
+const inputValue = ref<string>('');
+const resetValue = (): void => {
   resArray.value = [];
   inputValue.value = selectUser.name;
 }
 resetValue();
-const onSelectUser = (user: IUser) => {
+const onSelectUser = (user: IUser): void => {
   setSelectUser({userId: user.userId, name: user.name});
   inputValue.value = user.name;
   resArray.value = []
   isFocus.value.wasFocus = false;
 }
-const handleClickOutside = () => {
+const handleClickOutside = (): void => {
   if (isFocus.value.wasFocus) {
     inputValue.value = selectUser.name;
     resetValue();
     isFocus.value.wasFocus = false;
   }
 }
-const selInputRef = ref(null);
+const selInputRef = ref<null>(null);
 onClickOutside(selInputRef, handleClickOutside)
 
-
-watchEffect(async () => {
+watchEffect(async (): Promise<void> => {
       if (!inputValue.value.trim()) {
         setSelectUser({userId: 0, name: ''})
       } else if (selectUser.name !== inputValue.value) {
         try {
-          const response: IUser[] = await SocketEmit.getUsersEmit({query: inputValue.value})
-          resArray.value = response
-        } catch (e) {
+          resArray.value = await SocketEmit.getUsersEmit({query: inputValue.value})
+        } catch (e: unknown) {
           setError(e)
         }
       } else {

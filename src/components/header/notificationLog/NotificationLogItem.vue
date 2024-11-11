@@ -1,7 +1,10 @@
 <template>
   <div class="not-log-item">
     <div class="status-indicator">
-      <circle-s-v-g v-if="!props.isChecked" title="Отметить как прочитанное" @click="handleCheckNotification(props.notificationId)"/>
+      <CircleSVG v-if="!props.isChecked"
+                 title="Отметить как прочитанное"
+                 @click="handleCheckNotification(props.notificationId)"
+      />
     </div>
     <div class="line-content">
       <div class="head">
@@ -26,7 +29,7 @@ const props = defineProps<{
   message: string,
   isChecked: boolean,
   notificationId: number,
-  createdAt: any,
+  createdAt: string,
   handleCheckNotification: Function
 }>();
 </script>

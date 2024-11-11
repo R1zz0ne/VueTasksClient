@@ -13,41 +13,43 @@
       </div>
     </div>
     <div v-for="el in reversedNotificationLog" :key="el.notificationId">
-      <notification-log-item :name="el.name"
-                             :isChecked="el.isChecked"
-                             :taskId="el.taskId"
-                             :message="el.message"
-                             :notificationId="el.notificationId"
-                             :createdAt="el.createdAt"
-                             :handle-check-notification="handleCheckNotification"
+      <NotificationLogItem :name="el.name"
+                           :isChecked="el.isChecked"
+                           :taskId="el.taskId"
+                           :message="el.message"
+                           :notificationId="el.notificationId"
+                           :createdAt="el.createdAt"
+                           :handle-check-notification="handleCheckNotification"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import NotificationLogItem from "./NotificationLogItem.vue";
-import {computed, Ref, ref} from "vue";
+import {computed, ComputedRef, Ref, ref} from "vue";
+import {key, State} from "../../../store/store.ts";
+import {INotificationsLog} from "../../../models/notificationModels.ts";
 
 const notificationListMode: Ref<string> = ref('active')
-const store = useStore();
-const state = store.state;
+const store: Store<State> = useStore(key);
+const state: State = store.state;
 
-const reversedNotificationLog = computed(() => {
+const reversedNotificationLog: ComputedRef<INotificationsLog[]> = computed(() => {
   if (notificationListMode.value === "active") {
-    const activeNotification = state.notificationModule.notificationLog.filter((el) => el.isChecked === false)
+    const activeNotification: INotificationsLog[] = state.notificationModule.notificationLog.filter((el) => !el.isChecked)
     return activeNotification.reverse();
   } else {
     return state.notificationModule.notificationLog.slice().reverse();
   }
 })
-const handleCheckNotification = (notificationId: number) => {
+const handleCheckNotification = (notificationId: number): void => {
   store.dispatch('notificationModule/checkNotification', {notificationId})
 }
 
 
-const setNotificationListMode = (value: string) => {
+const setNotificationListMode = (value: string): void => {
   notificationListMode.value = value;
 }
 </script>

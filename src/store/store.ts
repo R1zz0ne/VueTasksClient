@@ -1,4 +1,4 @@
-import {createStore} from "vuex";
+import {createStore, Store} from "vuex";
 import {UserModule} from "./storeModules/userModule.ts";
 import {NotificationModule} from "./storeModules/notificationModule.ts";
 import {ProjectModule} from "./storeModules/projectModule.ts";
@@ -7,7 +7,7 @@ import {IUserModuleState} from "../models/userModels.ts";
 import {INotificationsModuleState} from "../models/notificationModels.ts";
 import {IProjectModuleState} from "../models/projectModels.ts";
 import {ITaskModuleState} from "../models/taskModels.ts";
-// import {InjectionKey} from "vue";
+import {InjectionKey} from "vue";
 
 export interface State {
     userModule: IUserModuleState,
@@ -16,9 +16,9 @@ export interface State {
     taskModule: ITaskModuleState
 }
 
-// export const key: InjectionKey<Store<State>> = Symbol()
+export const key: InjectionKey<Store<State>> = Symbol()
 
-export const store = createStore({
+export const store: Store<State> = createStore({
     modules: {
         userModule: UserModule,
         notificationModule: NotificationModule,

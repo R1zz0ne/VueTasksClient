@@ -2,26 +2,27 @@ import {taskPriorityMap, taskStatusMap} from "../utils/constants.ts";
 import {IUser} from "./userModels.ts";
 import {IPageInfo} from "./otherModels.ts";
 
+export interface ITaskModuleState {
+    currentTask: ITaskResponse,
+    taskList: ITaskList[],
+    taskListMode: 'active' | 'completed',
+    taskRoom: Pick<IUser, 'userId' | 'name'>[],
+    pageInfo: IPageInfo
+}
+
 export interface ITaskResponse {
     taskId: number,
     name: string,
     description: string,
     priority: ITaskPriorityMap,
-    completionDate: object, //Date имеет тип object
+    completionDate: string,
     project: {
         projectId: number,
         name: string
     },
-    member: {
-        userId: number,
-        name: string,
-        email: string
-    },
+    member: IUser,
     status: ITaskStatusMap,
-    editor: {
-        userId: number,
-        name: string
-    } | null
+    editor: Pick<IUser, 'userId' | 'name'> | null
 }
 
 export type ITaskStatusMap = keyof typeof taskStatusMap
@@ -31,7 +32,7 @@ export interface ITaskRequest {
     name: string,
     description: string,
     priority: string,
-    completionDate: any,
+    completionDate: string,
     projectId: number,
     member: number
 }
@@ -44,15 +45,8 @@ export interface ITaskRequestUpdStatus extends Pick<ITaskResponse, 'taskId' | 's
 
 }
 
-export interface ITaskModuleState {
-    currentTask: ITaskResponse,
-    taskList: ITaskList[],
-    taskListMode: 'active' | 'completed',
-    taskRoom: Pick<IUser, 'userId' | 'name'>[],
-    pageInfo: IPageInfo
-}
-
-export interface ITaskUpdateRequest extends ITaskRequest {
+export interface ITaskUpdateRequest extends Omit<ITaskRequest, 'completionDate'> {
+    completionDate: Date,
     taskId: number,
     status: ITaskStatusMap
 }
@@ -85,3 +79,23 @@ export interface ITaskInfoInList {
     priority?: ITaskPriorityMap
     status?: ITaskStatusMap
 }
+
+export interface ITaskInfoInBoard {
+    assigned: ITaskShort[],
+    inProgress: ITaskShort[],
+    completed: ITaskShort[]
+}
+
+export type ITaskVisibleMode = 'view' | 'edit'
+
+export interface ICreateTaskForm extends Pick<ITaskRequest, 'name' | 'description' | 'priority'> {
+    completionDate: string,
+    member: Pick<IUser, 'userId' | 'name'>
+}
+
+export interface IUpdateTaskForm extends Pick<ITaskResponse, 'taskId' | 'name' | 'description' | 'priority' | 'project' | 'status'> {
+    completionDate: Date,
+    member: Pick<IUser, 'userId' | 'name'>
+}
+
+export type ITaskListMode = 'active' | 'completed'

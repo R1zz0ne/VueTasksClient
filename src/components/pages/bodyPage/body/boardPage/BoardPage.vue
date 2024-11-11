@@ -12,8 +12,10 @@
 import Board from "./Board.vue";
 import BoardList from "./BoardList.vue";
 import {useStore} from "vuex";
+import {key} from "../../../../../store/store.ts";
+import {IProjectModuleState} from "../../../../../models/projectModels.ts";
 
-const projectState = useStore().state.projectModule;
+const projectState: IProjectModuleState = useStore(key).state.projectModule;
 </script>
 
 <style scoped>

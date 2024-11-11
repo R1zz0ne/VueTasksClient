@@ -2,14 +2,14 @@
   <div class="auth-block">
     <form class="auth" @submit.prevent>
       <span class="title">Регистрация</span>
-      <m-input placeholder="Имя" v-model="data.name"></m-input>
-      <m-input placeholder="Почта" v-model="data.email"></m-input>
+      <MInput placeholder="Имя" v-model="data.name"></MInput>
+      <MInput placeholder="Почта" v-model="data.email"></MInput>
       <div class="btn-pass">
-        <m-input placeholder="Пароль" v-model="data.password" :type="inputType"></m-input>
+        <MInput placeholder="Пароль" v-model="data.password" :type="inputType"></MInput>
         <EyeSVG v-if="inputType === 'password'" @click="setInputType('text')"/>
         <EyeOffSVG v-else @click="setInputType('password')"/>
       </div>
-      <m-button @click="onSubmitReg()">Зарегистрироваться</m-button>
+      <MButton @click="onSubmitReg()">Зарегистрироваться</MButton>
     </form>
   </div>
 </template>
@@ -19,24 +19,26 @@ import MInput from "../../ui/MInput.vue";
 import MButton from "../../ui/MButton.vue";
 import {reactive, ref, watchEffect} from "vue";
 import {IRegForm} from "../../../models/userModels.ts";
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import router from "../../../router/router.ts";
 import EyeOffSVG from "../../ui/svg/EyeOffSVG.vue";
 import EyeSVG from "../../ui/svg/EyeSVG.vue";
+import {key, State} from "../../../store/store.ts";
+import {IInputType} from "../../../models/otherModels.ts";
 
 const data = reactive<IRegForm>({name: '', email: '', password: ''})
-const store = useStore();
-const inputType = ref<"password" | "text">('password');
+const store: Store<State> = useStore(key);
+const inputType = ref<IInputType>('password');
 
-const setInputType = (type: "password" | "text") => {
+const setInputType = (type: IInputType): void => {
   inputType.value = type;
 }
 
-const onSubmitReg = () => {
+const onSubmitReg = (): void => {
   store.dispatch('userModule/registration', data)
 }
 
-watchEffect(() => {
+watchEffect((): void => {
   if (store.state.userModule.isAuth) {
     router.push('/')
   }

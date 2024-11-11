@@ -13,20 +13,14 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
-
-interface ISelectProps {
-  modelValue: any,
-  elements: any,
-  type: 'number' | 'string'
-}
+import {computed, ComputedRef, ref, watch} from "vue";
+import {ISelectProps, ISelectPropsElements} from "../../models/otherModels.ts";
 
 const {modelValue, elements, type} = defineProps<ISelectProps>()
-
 const emits = defineEmits(['update:modelValue']);
 
-const onChange = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
+const onChange = (event: Event): void => {
+  const value: string = (event.target as HTMLInputElement).value;
   if (type === "number") {
     emits('update:modelValue', Number(value));
   } else {
@@ -34,7 +28,7 @@ const onChange = (event: Event) => {
   }
 }
 
-const validElements = computed(() => {
+const validElements: ComputedRef<ISelectPropsElements | {}> = computed(() => {
   return typeof elements === 'object' && elements !== null && !Array.isArray(elements)
       ? elements
       : {}

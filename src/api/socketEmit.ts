@@ -1,4 +1,4 @@
-import {io} from "socket.io-client";
+import {io, Socket} from "socket.io-client";
 import {IAuthForm, IAuthResponse, IRegForm, IUser} from "../models/userModels.ts";
 import {
     ICreateProjectEmit,
@@ -17,21 +17,21 @@ import {INotificationsLog} from "../models/notificationModels.ts";
 
 
 class SocketEmit {
-    socket = io('ws://localhost:5000', {
+    socket: Socket = io('ws://localhost:5000', {
         auth: {
             accessToken: localStorage.getItem('token') as string
         },
     })
 
     async #createPromiseEmit(event: string, data: any, isRetry: boolean = false): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.socket.emit(event, data, async (response: any) => {
+        return new Promise((resolve, reject): void => {
+            this.socket.emit(event, data, async (response: any): Promise<void> => {
                 if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) { //TODO: Делать сравнение по коду
                     try {
                         await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
                         const retryResponse = await this.#createPromiseEmit(event, data, true)
                         resolve(retryResponse);
-                    } catch (e) {
+                    } catch (e: unknown) {
                         reject(e);
                     }
                 } else if (response.type === 'error' && response.message !== 'Пользователь не авторизован') { //TODO: Делать сравнение по коду

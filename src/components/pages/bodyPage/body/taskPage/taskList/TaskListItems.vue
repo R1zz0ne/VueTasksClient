@@ -38,31 +38,32 @@
 
 <script setup lang="ts">
 import {ref, reactive, onMounted, onBeforeUnmount, watchEffect} from 'vue';
-import {useStore} from 'vuex';
-import {useRouter} from 'vue-router';
+import {Store, useStore} from 'vuex';
+import {Router, useRouter} from 'vue-router';
 import {IConvTaskList, ITaskListKey} from '../../../../../../models/taskModels.ts';
+import {key, State} from "../../../../../../store/store.ts";
 
 const props = defineProps<{ path: string, searchString: string, elements: IConvTaskList[], handleMore: Function }>();
 
-const store = useStore();
-const router = useRouter();
+const store: Store<State> = useStore(key);
+const router: Router = useRouter();
 const filterableTaskList = ref<IConvTaskList[]>([]);
 const columnsName: string[] = ["ID", "Название", "Статус", "Приоритет"];
 const columnsValue: ITaskListKey[] = ["taskId", "name", "status", "priority"];
-const columnWidths = reactive([30, 100, 85, 85]);
-const tableWidth = ref(299); // Ширина таблицы для ограничения и скролла
-const wrapperWidth = ref(299);
-const observer = ref(null);
+const columnWidths = reactive<number[]>([30, 100, 85, 85]);
+const tableWidth = ref<number>(299); // Ширина таблицы для ограничения и скролла
+const wrapperWidth = ref<number>(299);
+const observer = ref<null>(null);
 let observe: IntersectionObserver | null = null;
 
 const maxWithList: number = 500;
 
-const isResizing = ref(false);
+const isResizing = ref<boolean>(false);
 const currentColumnIndex = ref<number | null>(null);
 const startX = ref<number | null>(null);
 const startWidth = ref<number | null>(null);
 
-const startResizing = (index: number, event: MouseEvent) => {
+const startResizing = (index: number, event: MouseEvent): void => {
   isResizing.value = true;
   currentColumnIndex.value = index;
   startX.value = event.clientX;
@@ -72,23 +73,23 @@ const startResizing = (index: number, event: MouseEvent) => {
   document.addEventListener('mouseup', stopResizing);
 };
 
-const resizeColumn = (event: MouseEvent) => {
+const resizeColumn = (event: MouseEvent): void => {
   if (!isResizing.value || currentColumnIndex.value === null || startX.value === null || startWidth.value === null) return;
 
-  const delta = event.clientX - startX.value;
-  const newWidth = startWidth.value + delta;
+  const delta: number = event.clientX - startX.value;
+  const newWidth: number = startWidth.value + delta;
 
   if (newWidth < 30) return; // Минимальная ширина столбца 30px
 
   columnWidths[currentColumnIndex.value] = newWidth;
 
   // Обновление общей ширины таблицы
-  const totalWidth = columnWidths.reduce((acc, width) => acc + width, 0);
+  const totalWidth: number = columnWidths.reduce((acc, width) => acc + width, 0);
   wrapperWidth.value = Math.min(maxWithList, totalWidth);
   tableWidth.value = wrapperWidth.value < maxWithList ? wrapperWidth.value : Math.max(maxWithList, totalWidth);
 };
 
-const stopResizing = () => {
+const stopResizing = (): void => {
   if (isResizing.value) {
     isResizing.value = false;
     document.removeEventListener('mousemove', resizeColumn);
@@ -96,7 +97,7 @@ const stopResizing = () => {
   }
 };
 
-onMounted(() => {
+onMounted((): void => {
   document.addEventListener('mouseup', stopResizing);
   if (observer.value) {
     observe = new IntersectionObserver((entries) => {
@@ -108,7 +109,7 @@ onMounted(() => {
   }
 });
 
-onBeforeUnmount(() => {
+onBeforeUnmount((): void => {
   document.removeEventListener('mouseup', stopResizing);
   if (observe) {
     observe.disconnect();
@@ -116,12 +117,12 @@ onBeforeUnmount(() => {
 });
 
 
-const handleClick = (taskId: number) => {
+const handleClick = (taskId: number): void => {
   router.push(`/${props.path}/${taskId}`);
   store.dispatch('taskModule/getTaskAC', taskId);
 };
 
-watchEffect(() => {
+watchEffect((): void => {
   filterableTaskList.value = props.elements.filter((el) => el.name.includes(props.searchString));
 });
 </script>

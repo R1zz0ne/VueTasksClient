@@ -10,9 +10,9 @@
 const {show, isClose} = defineProps({
   show: {type: Boolean, required: true},
   isClose: {type: String, default: 'all'}
-}); //Не получается использовать TS с defineProps и withDefaults
+});
 const emits = defineEmits(['update:show']);
-const hideDialog = () => {
+const hideDialog = (): void => {
   if (isClose === "all") {
     emits('update:show', false);
   }
@@ -35,7 +35,6 @@ const hideDialog = () => {
   margin: auto;
   background: var(--neutral-300);
   border-radius: 12px;
-  padding: 12px;
   padding: 0;
   min-width: 30%;
 }

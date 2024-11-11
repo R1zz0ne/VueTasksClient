@@ -4,18 +4,13 @@
       :placeholder="placeholder"
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      :readonly="readonly ? true : false"
+      :readonly="readonly"
       :class="[readonly ? 'readonly' : '']"
   >
 </template>
 
 <script setup lang="ts">
-
-interface IMInputProps {
-  placeholder?: string,
-  modelValue?: any,
-  readonly?: boolean
-}
+import {IMInputProps} from "../../models/otherModels.ts";
 
 const {placeholder, modelValue, readonly} = defineProps<IMInputProps>()
 </script>

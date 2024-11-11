@@ -2,7 +2,7 @@
   <div class="main">
     <Header class="header"/>
     <Navbar class="nav"/>
-    <router-view class="body"></router-view>
+    <RouterView class="body"></RouterView>
   </div>
 </template>
 
@@ -10,21 +10,23 @@
 import Header from "./header/Header.vue";
 import Navbar from "./navbar/Navbar.vue";
 import {watchEffect} from "vue";
-import {useStore} from "vuex";
-import {useRouter} from "vue-router";
+import {Store, useStore} from "vuex";
+import {Router, useRouter} from "vue-router";
 import SocketEmit from "../api/socketEmit.ts";
+import {key, State} from "../store/store.ts";
+import {IUserModuleState} from "../models/userModels.ts";
 
-const store = useStore();
-const userModule = store.state.userModule;
-const router = useRouter();
+const store: Store<State> = useStore(key);
+const userModule: IUserModuleState = store.state.userModule;
+const router: Router = useRouter();
 
-watchEffect(() => {
+watchEffect((): void => {
   if (!userModule.isAuth) {
     router.push('/authorization')
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next): void => {
   if (from.name === 'tasks' && to.name !== 'tasks') {
     if (from.params.id) {
       SocketEmit.leaveRoom({type: 'task', id: Number(from.params.id)})

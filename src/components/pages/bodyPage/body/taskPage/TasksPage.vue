@@ -12,8 +12,10 @@
 import TaskList from "./taskList/TaskList.vue";
 import Task from "./task/Task.vue";
 import {useStore} from "vuex";
+import {key} from "../../../../../store/store.ts";
+import {ITaskModuleState} from "../../../../../models/taskModels.ts";
 
-const taskState = useStore().state.taskModule;
+const taskState: ITaskModuleState = useStore(key).state.taskModule;
 </script>
 
 <style scoped>

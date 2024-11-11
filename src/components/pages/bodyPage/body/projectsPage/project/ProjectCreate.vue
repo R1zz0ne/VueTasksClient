@@ -2,21 +2,21 @@
   <div class="item-content">
     <div class="field-block">
       <label></label>
-      <m-input placeholder="Название" class="title" v-model.trim="form.name"></m-input>
+      <MInput placeholder="Название" class="title" v-model.trim="form.name"></MInput>
     </div>
-    <m-error-message :errors="errors?.name"/>
+    <MErrorMessage :errors="errors?.name"/>
     <div class="field-block">
       <label>Описание</label>
-      <m-textarea rows="10" v-model="form.description"></m-textarea>
+      <MTextarea rows="10" v-model="form.description"></MTextarea>
     </div>
     <div class="field-block">
       <label>Владелец</label>
-      <m-selected-input :select-user="form.owner" :set-select-user="setSelectUser"></m-selected-input>
+      <MSelectedInput :select-user="form.owner" :set-select-user="setSelectUser"></MSelectedInput>
     </div>
-    <m-error-message :errors="errors?.owner?.userId"/>
+    <MErrorMessage :errors="errors?.owner?.userId"/>
     <div class="buttons">
-      <m-button @click="handleCancel" type="danger">Отменить</m-button>
-      <m-button @click="handleSubmit" type="success"> Сохранить</m-button>
+      <MButton @click="handleCancel" type="danger">Отменить</MButton>
+      <MButton @click="handleSubmit" type="success"> Сохранить</MButton>
     </div>
   </div>
 </template>
@@ -28,14 +28,14 @@ import * as z from "zod";
 import {ref, watchEffect} from "vue";
 import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
 import {IUser} from "../../../../../../models/userModels.ts";
-import {IProjectProps} from "../../../../../../models/projectModels.ts";
+import {ICreateProjectForm, IProjectProps} from "../../../../../../models/projectModels.ts";
 import MTextarea from "../../../../../ui/MTextarea.vue";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
 
 const {setMode} = defineProps<Pick<IProjectProps, 'setMode'>>()
 
-const form = ref({
+const form = ref<ICreateProjectForm>({
   name: '',
   description: '',
   owner: {
@@ -43,7 +43,7 @@ const form = ref({
     name: ''
   }
 })
-const isTrySubmit = ref(false);
+const isTrySubmit = ref<boolean>(false);
 
 const formSchema = z.object({
   name: z.string()
@@ -57,8 +57,8 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>
 const errors = ref<z.ZodFormattedError<formSchemaType> | null>(null)
 
-const handleSubmit = async () => {
-  const validSchema = formSchema.safeParse(form.value);
+const handleSubmit = async (): Promise<void> => {
+  const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
   if (!validSchema.success) {
     errors.value = validSchema.error.format()
   } else {
@@ -73,18 +73,18 @@ const handleSubmit = async () => {
   isTrySubmit.value = true;
 }
 
-const handleCancel = () => {
+const handleCancel = (): void => {
   setMode('view', false)
 }
 
-const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
+const setSelectUser = (selectUser: Omit<IUser, 'email'>): void => {
   form.value.owner.userId = selectUser.userId
   form.value.owner.name = selectUser.name
 }
 
-watchEffect(() => {
+watchEffect((): void => {
   if (isTrySubmit.value) {
-    const validSchema = formSchema.safeParse(form.value);
+    const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
     if (!validSchema.success) {
       errors.value = validSchema.error.format()
     } else {

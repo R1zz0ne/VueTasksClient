@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import SocketEmit from "../api/socketEmit.ts";
 import AuthorizationPage from "../components/pages/authorizationPage/AuthorizationPage.vue";
 import RegistrationPage from "../components/pages/registrationPage/RegistrationPage.vue";
@@ -8,6 +8,7 @@ import NoContentPage from "../components/pages/bodyPage/body/NoContentPage.vue";
 import TasksPage from "../components/pages/bodyPage/body/taskPage/TasksPage.vue";
 import ProjectsPage from "../components/pages/bodyPage/body/projectsPage/ProjectsPage.vue";
 import BoardPage from "../components/pages/bodyPage/body/boardPage/BoardPage.vue";
+import {key, State} from "../store/store.ts";
 
 const routes = [
     {
@@ -39,8 +40,8 @@ const routes = [
                         component: TasksPage
                     }
                 ],
-                beforeEnter: async () => {
-                    const store = useStore()
+                beforeEnter: async (): Promise<void> => {
+                    const store: Store<State> = useStore(key)
                     await SocketEmit.getTaskListEmit(store.state.taskModule.pageInfo.page);
                 }
             },
@@ -55,8 +56,8 @@ const routes = [
                         component: ProjectsPage
                     }
                 ],
-                beforeEnter: async () => {
-                    const store = useStore()
+                beforeEnter: async (): Promise<void> => {
+                    const store: Store<State> = useStore(key)
                     await SocketEmit.getProjectListEmit(store.state.projectModule.pageInfo.page);
                 }
             },
@@ -71,8 +72,8 @@ const routes = [
                         component: BoardPage
                     }
                 ],
-                beforeEnter: async () => {
-                    const store = useStore()
+                beforeEnter: async (): Promise<void> => {
+                    const store: Store<State> = useStore(key)
                     await SocketEmit.getProjectListEmit(store.state.projectModule.pageInfo.page);
                 }
             }

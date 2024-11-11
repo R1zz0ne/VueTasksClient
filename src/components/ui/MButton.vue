@@ -5,10 +5,10 @@
 </template>
 
 <script setup lang="ts">
-import {IPropsMButton} from "../../models/UIComponsentsModels.ts";
+import {IPropsMButton, IPropsMButtonType} from "../../models/UIComponsentsModels.ts";
 
 const {type} = defineProps<IPropsMButton>()
-const validatedType = type && ['primary', 'success', 'danger', 'none'].includes(type) ? type : 'primary'
+const validatedType: IPropsMButtonType = type && ['primary', 'success', 'danger', 'none'].includes(type) ? type : 'primary'
 </script>
 
 <style scoped>

@@ -1,10 +1,10 @@
 <template>
   <div class="nav-block">
     <div class="search">
-      <m-input v-model="searchString" style="height: 28px" placeholder="Поиск..."></m-input>
+      <MInput v-model="searchString" style="height: 28px" placeholder="Поиск..."></MInput>
     </div>
-    <list-items path="board" :search-string="searchString"></list-items>
-    <div class="pag">TODO: paginations</div>
+    <ListItems path="board" :search-string="searchString"></ListItems>
+    <div class="pag">TODO: pagination</div>
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import MInput from "../../../../ui/MInput.vue";
 import ListItems from "../projectsPage/listItems/ListItems.vue";
 import {ref} from "vue";
 
-const searchString = ref("")
+const searchString = ref<string>("")
 </script>
 
 <style scoped>

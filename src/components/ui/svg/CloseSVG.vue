@@ -13,8 +13,8 @@
 <script setup lang="ts">
 import {ref} from "vue";
 
-const {stroke} = defineProps<{ stroke: string }>()
-const color = ref('');
+const {stroke} = defineProps<{ stroke: string | undefined }>()
+const color = ref<string>('');
 switch (stroke) {
   case 'error':
     color.value = 'var(--danger-700)';

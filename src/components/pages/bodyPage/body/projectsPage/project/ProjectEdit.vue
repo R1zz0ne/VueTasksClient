@@ -3,23 +3,23 @@
     <span class="title">Редактирование проекта # {{ projectStoreCurrentProject.projectId }}</span>
     <div class="field-block">
       <label>Название</label>
-      <m-input placeholder="Тема" v-model="form.name"></m-input>
+      <MInput placeholder="Тема" v-model="form.name"></MInput>
     </div>
-    <m-error-message :errors="errors?.name" />
+    <MErrorMessage :errors="errors?.name"/>
     <div class="field-block">
       <label>Описание</label>
-      <m-textarea rows="10" v-model="form.description"></m-textarea>
+      <MTextarea rows="10" v-model="form.description"></MTextarea>
     </div>
     <div class="field-block">
       <label>Владелец</label>
-      <m-selected-input :select-user="form.owner" :set-select-user="setSelectUser"></m-selected-input>
+      <MSelectedInput :select-user="form.owner" :set-select-user="setSelectUser"></MSelectedInput>
     </div>
-    <m-error-message :errors="errors?.owner?.userId" />
+    <MErrorMessage :errors="errors?.owner?.userId"/>
     <div class="buttons">
-      <m-button @click="handleCancel" type="danger">Отменить</m-button>
-      <m-button @click="handleSubmit" type="success">Сохранить</m-button>
+      <MButton @click="handleCancel" type="danger">Отменить</MButton>
+      <MButton @click="handleSubmit" type="success">Сохранить</MButton>
     </div>
-    <record-footer :editor="projectState.currentProject.editor" :viewers="projectState.projectRoom"/>
+    <RecordFooter :editor="projectState.currentProject.editor" :viewers="projectState.projectRoom"/>
   </div>
 </template>
 
@@ -30,24 +30,30 @@ import MSelectedInput from "../../../../../ui/MSelectedInputUser.vue";
 import * as z from "zod";
 import {ref, watchEffect} from "vue";
 import {IUser} from "../../../../../../models/userModels.ts";
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import MTextarea from "../../../../../ui/MTextarea.vue";
-import {IProjectProps} from "../../../../../../models/projectModels.ts";
+import {
+  IProject,
+  IProjectModuleState,
+  IProjectProps,
+  IUpdateProjectForm
+} from "../../../../../../models/projectModels.ts";
 import RecordFooter from "../../RecordFooter.vue";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
+import {key, State} from "../../../../../../store/store.ts";
 
-const store = useStore();
+const store: Store<State> = useStore(key);
 const {setMode} = defineProps<Omit<IProjectProps, 'mode'>>()
-const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
+const setSelectUser = (selectUser: Omit<IUser, 'email'>): void => {
   form.value.owner.userId = selectUser.userId
   form.value.owner.name = selectUser.name
 }
 
-const projectState = store.state.projectModule;
-const projectStoreCurrentProject = projectState.currentProject;
+const projectState: IProjectModuleState = store.state.projectModule;
+const projectStoreCurrentProject: IProject = projectState.currentProject;
 
-const form = ref({
+const form = ref<IUpdateProjectForm>({
   name: projectStoreCurrentProject.name,
   description: projectStoreCurrentProject.description,
   owner: {
@@ -56,7 +62,7 @@ const form = ref({
   },
   tasks: projectStoreCurrentProject.tasks
 })
-const isTrySubmit = ref(false);
+const isTrySubmit = ref<boolean>(false);
 
 const formSchema = z.object({
   name: z.string()
@@ -70,8 +76,8 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>
 const errors = ref<z.ZodFormattedError<formSchemaType> | null>(null)
 
-const handleSubmit = async () => {
-  const validSchema = formSchema.safeParse(form.value);
+const handleSubmit = async (): Promise<void> => {
+  const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
   if (!validSchema.success) {
     errors.value = validSchema.error.format()
   } else {
@@ -87,13 +93,13 @@ const handleSubmit = async () => {
   isTrySubmit.value = true;
 }
 
-const handleCancel = () => {
+const handleCancel = (): void => {
   setMode('view', true)
 }
 
 watchEffect(() => {
   if (isTrySubmit.value) {
-    const validSchema = formSchema.safeParse(form.value);
+    const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
     if (!validSchema.success) {
       errors.value = validSchema.error.format()
     } else {

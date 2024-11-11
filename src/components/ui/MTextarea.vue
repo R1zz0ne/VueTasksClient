@@ -11,11 +11,7 @@
 </template>
 
 <script setup lang="ts">
-interface IMTextareaProps {
-  modelValue?: any
-  rows?: string
-  disabled?: string
-}
+import {IMTextareaProps} from "../../models/otherModels.ts";
 
 const {modelValue, rows} = defineProps<IMTextareaProps>()
 </script>
@@ -36,7 +32,6 @@ textarea {
   display: inline-block;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  border: none;
   border: 1px var(--neutral-500) solid;
 }
 
@@ -50,7 +45,6 @@ textarea {
   color: #000000;
   border: none;
   font-size: 1rem;
-  font-family: "Times New Roman";
   outline: none;
   box-sizing: border-box;
   resize: none;

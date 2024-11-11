@@ -50,23 +50,24 @@ import MSelect from "../../../../../ui/MSelect.vue";
 import MErrorMessage from "../../../../../ui/MErrorMessage.vue";
 import {datePickerFormat, taskPriorityMap} from "../../../../../../utils/constants.ts";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
+import {ICreateTaskForm} from "../../../../../../models/taskModels.ts";
 
-const setSelectUser = (selectUser: Omit<IUser, 'email'>) => {
+const setSelectUser = (selectUser: Omit<IUser, 'email'>): void => {
   form.value.member.userId = selectUser.userId
   form.value.member.name = selectUser.name
 }
 
-const form = ref({
+const form = ref<ICreateTaskForm>({
   name: "",
   description: "",
   priority: "",
-  completionDate: null,
+  completionDate: "",
   member: {
     userId: 0,
     name: ""
   }
 })
-const isTrySubmit = ref(false);
+const isTrySubmit = ref<boolean>(false);
 
 const formSchema = z.object({
   name: z.string()
@@ -84,7 +85,7 @@ type formSchemaType = z.infer<typeof formSchema>
 const errors = ref<z.ZodFormattedError<formSchemaType> | null>(null)
 
 const handleSubmit = async () => {
-  const validSchema = formSchema.safeParse(form.value);
+  const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
   if (!validSchema.success) {
     errors.value = validSchema.error.format()
   } else {
@@ -102,13 +103,13 @@ const handleSubmit = async () => {
   isTrySubmit.value = true;
 }
 const {setDialogVisible, projectId} = defineProps<{ setDialogVisible: Function, projectId: number }>();
-const handleCancel = () => {
+const handleCancel = (): void => {
   setDialogVisible(false);
 }
 
-watchEffect(() => {
+watchEffect((): void => {
   if (isTrySubmit.value) {
-    const validSchema = formSchema.safeParse(form.value);
+    const validSchema: z.SafeParseReturnType<formSchemaType, formSchemaType> = formSchema.safeParse(form.value);
     if (!validSchema.success) {
       errors.value = validSchema.error.format()
     } else {

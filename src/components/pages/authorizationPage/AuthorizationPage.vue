@@ -2,15 +2,15 @@
   <div class="auth-block">
     <form class="auth" @submit.prevent>
       <span class="title">Авторизация</span>
-      <m-input placeholder="Почта" v-model.trim="data.email"/>
+      <MInput placeholder="Почта" v-model.trim="data.email"/>
       <div class="btn-pass">
-        <m-input placeholder="Пароль" v-model="data.password" :type="inputType"/>
+        <MInput placeholder="Пароль" v-model="data.password" :type="inputType"/>
         <EyeSVG v-if="inputType === 'password'" @click="setInputType('text')"/>
         <EyeOffSVG v-else @click="setInputType('password')"/>
       </div>
-      <m-button @click="onSubmitAuth()">Авторизоваться</m-button>
+      <MButton @click="onSubmitAuth()">Авторизоваться</MButton>
       <div class="reg-block">
-        <m-button @click="$router.push('/registration')">Регистрация</m-button>
+        <MButton @click="$router.push('/registration')">Регистрация</MButton>
       </div>
     </form>
   </div>
@@ -22,22 +22,24 @@ import MButton from "../../ui/MButton.vue";
 import {reactive, ref, watchEffect} from "vue";
 import {IAuthForm} from "../../../models/userModels.ts";
 import router from "../../../router/router.ts";
-import {useStore} from "vuex";
+import {Store, useStore} from "vuex";
 import EyeSVG from "../../ui/svg/EyeSVG.vue";
 import EyeOffSVG from "../../ui/svg/EyeOffSVG.vue";
+import {key, State} from "../../../store/store.ts";
+import {IInputType} from "../../../models/otherModels.ts";
 
-const store = useStore();
+const store: Store<State> = useStore(key);
 const data = reactive<IAuthForm>({email: '', password: ''})
-const inputType = ref<"password" | "text">('password');
+const inputType = ref<IInputType>('password');
 
-const setInputType = (type: "password" | "text") => {
+const setInputType = (type: IInputType) => {
   inputType.value = type;
 }
 
-const onSubmitAuth = () => {
+const onSubmitAuth = (): void => {
   store.dispatch('userModule/login', data)
 }
-watchEffect(() => {
+watchEffect((): void => {
   if (store.state.userModule.isAuth) {
     router.push('/')
   }

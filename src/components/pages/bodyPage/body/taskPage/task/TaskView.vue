@@ -3,9 +3,9 @@
     <div class="field-block">
       <label class="title"># {{ task.currentTask.taskId }}</label>
       <span class="title">{{ task.currentTask.name }}</span>
-      <m-button class="edit-btn" type="none" @click="handleClick">
-        <edit-s-v-g fill="var(--primary-600)" style="vertical-align: center"/>
-      </m-button>
+      <MButton class="edit-btn" type="none" @click="handleClick">
+        <EditSVG fill="var(--primary-600)" style="vertical-align: center"/>
+      </MButton>
     </div>
     <div class="field-block">
       <label>Статус</label>
@@ -31,7 +31,7 @@
       <label>Исполнитель</label>
       <span>{{ task.currentTask.member.name }}</span>
     </div>
-    <record-footer :viewers="task.taskRoom" :editor="task.currentTask.editor"/>
+    <RecordFooter :viewers="task.taskRoom" :editor="task.currentTask.editor"/>
   </div>
   <div class="form-view-task" v-else></div>
 </template>
@@ -41,14 +41,15 @@ import {useStore} from "vuex";
 import MButton from "../../../../../ui/MButton.vue";
 import EditSVG from "../../../../../ui/svg/EditSVG.vue";
 import {taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
-import {ITaskPriorityMap, ITaskStatusMap} from "../../../../../../models/taskModels.ts";
+import {ITaskModuleState, ITaskPriorityMap, ITaskStatusMap} from "../../../../../../models/taskModels.ts";
 import {setError} from "../../../../../../services/setError.ts";
 import RecordFooter from "../../RecordFooter.vue";
+import {key} from "../../../../../../store/store.ts";
 
 const {setMode} = defineProps<{ setMode: Function }>()
-const task = useStore().state.taskModule;
+const task: ITaskModuleState = useStore(key).state.taskModule;
 
-const handleClick = () => {
+const handleClick = (): void => {
   if (typeof task.currentTask.editor?.userId === 'number') {
     setError({
       message: `Эту задачу уже редактирует пользователь "${task.currentTask.editor?.name}", попробуйте позже`

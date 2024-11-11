@@ -2,33 +2,33 @@
   <div class="nav-block">
     <div class="list-block">
       <div class="search">
-        <m-input v-model="searchString" style="height: 28px" placeholder="Поиск..."></m-input>
+        <MInput v-model="searchString" style="height: 28px" placeholder="Поиск..."></MInput>
         <div>
-          <m-button @click="setVisibleFilter(!visibleFilter)">~</m-button>
+          <MButton @click="setVisibleFilter(!visibleFilter)">~</MButton>
           <div v-if="visibleFilter" class="filter">
             <div class="filter-row">
               <div>Статус</div>
-              <m-select :elements="taskStatusMap" v-model="filter.status" type="string"/>
+              <MSelect :elements="taskStatusMap" v-model="filter.status" type="string"/>
             </div>
             <div class="filter-row">
               <div>Приоритет</div>
-              <m-select :elements="taskPriorityMap" v-model="filter.priority" type="string"/>
+              <MSelect :elements="taskPriorityMap" v-model="filter.priority" type="string"/>
             </div>
             <div class="btn-block">
-              <m-button type="danger" @click="cleanFilter">Сброс</m-button>
-              <m-button type="success" @click="applyFilter">Применить</m-button>
+              <MButton type="danger" @click="cleanFilter">Сброс</MButton>
+              <MButton type="success" @click="applyFilter">Применить</MButton>
             </div>
           </div>
         </div>
       </div>
-      <task-tab-panel :task-list-mode="taskListMode" :set-task-list-mode="setTaskListMode"/>
+      <TaskTabPanel :task-list-mode="taskListMode" :set-task-list-mode="setTaskListMode"/>
     </div>
-    <task-list-items path="tasks"
-                     :search-string="searchString"
-                     :elements="filterableArray"
-                     :handle-more="handleGetTaskMore"
-                     v-if="filterableArray.length > 0"
-    ></task-list-items>
+    <TaskListItems path="tasks"
+                   :search-string="searchString"
+                   :elements="filterableArray"
+                   :handle-more="handleGetTaskMore"
+                   v-if="filterableArray.length > 0"
+    ></TaskListItems>
     <div v-else class="list-items"/>
     <div class="pag">Кол-во записей: {{ taskModule.pageInfo.totalRecords }}
     </div>
@@ -38,28 +38,35 @@
 <script setup lang="ts">
 import MInput from "../../../../../ui/MInput.vue";
 import TaskListItems from "./TaskListItems.vue";
-import {Ref, ref, watchEffect} from "vue";
+import {ref, watchEffect} from "vue";
 import MButton from "../../../../../ui/MButton.vue";
 import MSelect from "../../../../../ui/MSelect.vue";
 import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
-import {useStore} from "vuex";
-import {IConvTaskList, ITaskList, ITaskListFilter} from "../../../../../../models/taskModels.ts";
+import {Store, useStore} from "vuex";
+import {
+  IConvTaskList,
+  ITaskList,
+  ITaskListFilter,
+  ITaskListMode,
+  ITaskModuleState
+} from "../../../../../../models/taskModels.ts";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import TaskTabPanel from "./TaskTabPanel.vue";
+import {key, State} from "../../../../../../store/store.ts";
 
-const store = useStore();
-const taskModule = useStore().state.taskModule;
+const store: Store<State> = useStore(key);
+const taskModule: ITaskModuleState = useStore(key).state.taskModule;
 
-const searchString = ref("")
-const visibleFilter = ref(false);
-const filter: Ref<ITaskListFilter> = ref({
+const searchString = ref<string>("")
+const visibleFilter = ref<boolean>(false);
+const filter = ref<ITaskListFilter>({
   status: null,
   priority: null
 })
-const filterableArray = ref([] as IConvTaskList[])
-const taskListMode = ref("active");
+const filterableArray = ref<IConvTaskList[]>([])
+const taskListMode = ref<ITaskListMode>("active");
 
-const setTaskListMode = async (value: 'active' | 'completed') => {
+const setTaskListMode = async (value: ITaskListMode): Promise<void> => {
   if (value === 'active' && taskListMode.value !== 'active') {
     store.commit('taskModule/setCurrentPage', 1)
     store.commit('taskModule/cleanTaskList')
@@ -73,11 +80,11 @@ const setTaskListMode = async (value: 'active' | 'completed') => {
   store.commit('taskModule/setTaskListMode', value);
 }
 
-const setVisibleFilter = (value: boolean) => {
+const setVisibleFilter = (value: boolean): void => {
   visibleFilter.value = value
 }
 
-const applyFilter = () => {
+const applyFilter = (): void => {
   const isStatus: boolean = filter.value.status !== null;
   const isPriority: boolean = filter.value.priority !== null;
   const taskList: ITaskList[] = taskModule.taskList;
@@ -95,7 +102,7 @@ const applyFilter = () => {
   }
 }
 
-const cleanFilter = () => {
+const cleanFilter = (): void => {
   filter.value.priority = null;
   filter.value.status = null;
   filterableArray.value = convTaskList(taskModule.taskList);
@@ -103,11 +110,11 @@ const cleanFilter = () => {
 
 filterableArray.value = convTaskList(taskModule.taskList);
 
-watchEffect(() => {
+watchEffect((): void => {
   applyFilter()
 })
 
-const handleGetTaskMore = async () => {
+const handleGetTaskMore = async (): Promise<void> => {
   if (taskModule.pageInfo.totalPages > taskModule.pageInfo.page) {
     const newPage: number = taskModule.pageInfo.page + 1;
     store.commit('taskModule/setCurrentPage', newPage);

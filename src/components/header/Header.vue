@@ -1,10 +1,10 @@
 <template>
   <div class="header">
-    <m-button @click="handleVisible">Журнал уведомлений</m-button>
-    <m-dialog v-model:show="isVisible">
-      <notification-log/>
-    </m-dialog>
-    <m-button @click="logout">Выйти</m-button>
+    <MButton @click="handleVisible">Журнал уведомлений</MButton>
+    <MDialog v-model:show="isVisible">
+      <NotificationLog/>
+    </MDialog>
+    <MButton @click="logout">Выйти</MButton>
   </div>
 </template>
 
@@ -14,16 +14,17 @@ import {useStore} from "vuex";
 import {Ref, ref} from "vue";
 import MDialog from "../ui/MDialog.vue";
 import NotificationLog from "./notificationLog/NotificationLog.vue";
+import {key} from "../../store/store.ts";
 
 const isVisible: Ref<boolean> = ref(false);
 
-const handleVisible = () => {
+const handleVisible = (): void => {
   isVisible.value = !isVisible.value
 }
 
-const store = useStore();
+const store = useStore(key);
 
-const logout = () => {
+const logout = (): void => {
   store.dispatch('userModule/logout')
 }
 </script>

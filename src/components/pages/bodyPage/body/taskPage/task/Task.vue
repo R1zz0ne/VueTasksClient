@@ -1,7 +1,7 @@
 <template>
   <div class="content">
-    <task-view v-if="mode === 'view'" :set-mode="setMode"></task-view>
-    <task-edit v-if="mode === 'edit'" :set-mode="setMode"></task-edit>
+    <TaskView v-if="mode === 'view'" :set-mode="setMode"></TaskView>
+    <TaskEdit v-if="mode === 'edit'" :set-mode="setMode"></TaskEdit>
   </div>
 </template>
 
@@ -9,17 +9,19 @@
 import TaskView from "./TaskView.vue";
 import TaskEdit from "./TaskEdit.vue";
 import {onMounted, onUnmounted, ref, watch} from "vue";
-import {useStore} from "vuex";
-import {useRoute} from "vue-router";
+import {Store, useStore} from "vuex";
+import {RouteLocationNormalizedLoaded, useRoute} from "vue-router";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
+import {key, State} from "../../../../../../store/store.ts";
+import {ITaskModuleState, ITaskVisibleMode} from "../../../../../../models/taskModels.ts";
 
-const mode = ref('view');
-const route = useRoute();
-const store = useStore();
-const state = store.state;
-const taskState = state.taskModule;
+const mode = ref<ITaskVisibleMode>('view');
+const route: RouteLocationNormalizedLoaded = useRoute();
+const store: Store<State> = useStore(key);
+const state: State = store.state;
+const taskState: ITaskModuleState = state.taskModule;
 
-const setMode = (value: 'view' | 'edit') => {
+const setMode = (value: ITaskVisibleMode): void => {
   if (value === 'edit') {
     SocketEmit.updateTaskEditor({
       taskId: taskState.currentTask.taskId,
@@ -34,21 +36,20 @@ const setMode = (value: 'view' | 'edit') => {
   mode.value = value;
 }
 
-
-const joinRoom = (taskId: number) => {
+const joinRoom = (taskId: number): void => {
   SocketEmit.joinRoom({type: 'task', id: taskId})
 }
-const leaveRoom = (taskId: number) => {
+const leaveRoom = (taskId: number): void => {
   SocketEmit.leaveRoom({type: 'task', id: taskId})
   store.commit('taskModule/setCurrentTask', {})
   store.commit('taskModule/setTaskRoom', [])
 }
 
-onMounted(() => {
+onMounted((): void => {
   joinRoom(taskState.currentTask.taskId)
 })
 
-onUnmounted(() => {
+onUnmounted((): void => {
   if (taskState.currentTask.taskId) {
     leaveRoom(taskState.currentTask.taskId)
   }

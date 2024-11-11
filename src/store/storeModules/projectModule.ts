@@ -1,4 +1,4 @@
-import {Module} from "vuex";
+import {Commit, Module} from "vuex";
 import {setError} from "../../services/setError.ts";
 import {
     IDataForUpdateProject,
@@ -9,10 +9,11 @@ import {
 import {ITaskResponse, ITaskShort} from "../../models/taskModels.ts";
 import SocketEmit from "../../api/socketEmit.ts";
 import {IUser} from "../../models/userModels.ts";
+import {State} from "../store.ts";
 
-export const ProjectModule: Module<IProjectModuleState, any> = {
+export const ProjectModule: Module<IProjectModuleState, State> = {
     namespaced: true,
-    state: () => ({
+    state: (): IProjectModuleState => ({
         currentProject: {} as IProject,
         projectList: [] as IProjectList[],
         projectRoom: [] as Pick<IUser, 'userId' | 'name'>[],
@@ -23,36 +24,35 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
             totalRecords: 0
         }
     }),
-    getters: {},
     mutations: {
-        setProjectList(state, projectList: IProjectList[]) {
+        setProjectList(state: IProjectModuleState, projectList: IProjectList[]): void {
             state.projectList = [...state.projectList, ...projectList];
         },
-        cleanProjectList(state) {
+        cleanProjectList(state: IProjectModuleState): void {
             state.projectList = []
         },
-        updateProjectInfoInList(state, project: IDataForUpdateProject) {
-            const index = state.projectList.findIndex((projectInArr) =>
+        updateProjectInfoInList(state: IProjectModuleState, project: IDataForUpdateProject): void {
+            const index: number = state.projectList.findIndex((projectInArr: IProjectList): boolean =>
                 projectInArr.projectId === project.projectId)
             if (index !== -1) {
                 project.name ? state.projectList[index].name = project.name : null
             }
         },
-        setCurrentProject(state, project: IProject) {
+        setCurrentProject(state: IProjectModuleState, project: IProject): void {
             state.currentProject = project;
         },
-        updateCurrentProject(state, project: Omit<IProject, 'tasks'>) {
+        updateCurrentProject(state: IProjectModuleState, project: Omit<IProject, 'tasks'>): void {
             if (state.currentProject.projectId === project.projectId) {
                 state.currentProject.name = project.name;
                 state.currentProject.description = project.description;
                 state.currentProject.owner = project.owner;
             }
         },
-        setTaskInCurrentProject(state, task: ITaskResponse) {
+        setTaskInCurrentProject(state: IProjectModuleState, task: ITaskResponse): void {
             state.currentProject.tasks.push(task)
         },
-        updateTask(state, task: Partial<ITaskShort>) {
-            const index = state.currentProject.tasks.findIndex((taskInArr) => taskInArr.taskId === task.taskId);
+        updateTask(state: IProjectModuleState, task: Partial<ITaskShort>): void {
+            const index: number = state.currentProject.tasks.findIndex((taskInArr: ITaskShort): boolean => taskInArr.taskId === task.taskId);
             if (index !== -1) {
                 task.name ? state.currentProject.tasks[index].name = task.name : null;
                 task.priority ? state.currentProject.tasks[index].priority = task.priority : null;
@@ -62,26 +62,26 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
                 task.editor ? state.currentProject.tasks[index].editor = task.editor : null;
             }
         },
-        setProjectRoom(state, userList: Pick<IUser, 'userId' | 'name'>[]) {
+        setProjectRoom(state: IProjectModuleState, userList: Pick<IUser, 'userId' | 'name'>[]): void {
             state.projectRoom = userList;
         },
-        setBoardRoom(state, userList: Pick<IUser, 'userId' | 'name'>[]) {
+        setBoardRoom(state: IProjectModuleState, userList: Pick<IUser, 'userId' | 'name'>[]): void {
             state.boardRoom = userList;
         },
-        updateProjectEditor(state, data: Pick<IProject, 'projectId' | 'editor'>) {
+        updateProjectEditor(state: IProjectModuleState, data: Pick<IProject, 'projectId' | 'editor'>): void {
             if (state.currentProject.projectId === data.projectId) {
                 state.currentProject.editor = data.editor;
             }
         },
-        setCurrentPage(state, page: number) {
+        setCurrentPage(state: IProjectModuleState, page: number): void {
             state.pageInfo.page = page;
         },
-        setTotalRecords(state, totalRecords: number) {
-            const totalPages = Math.ceil(totalRecords / 20);
+        setTotalRecords(state: IProjectModuleState, totalRecords: number): void {
+            const totalPages: number = Math.ceil(totalRecords / 20);
             state.pageInfo.totalRecords = totalRecords;
             state.pageInfo.totalPages = totalPages;
         },
-        addNewProjectInList(state, project: IProjectList) {
+        addNewProjectInList(state: IProjectModuleState, project: IProjectList): void {
             const isLastPage: boolean = state.pageInfo.totalPages === state.pageInfo.page;
             const countInLastPage: number = (state.pageInfo.page * 20) - state.pageInfo.totalRecords;
             const totalRecords: number = state.pageInfo.totalRecords + 1
@@ -94,77 +94,79 @@ export const ProjectModule: Module<IProjectModuleState, any> = {
         }
     },
     actions: {
-        async createProjectAC({commit}, data: IProject) {
+        async createProjectAC({commit}: { commit: Commit }, data: IProject): Promise<void> {
             try {
                 commit('setCurrentProject', {...data})
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async updateProjectAC({commit}, data: IDataForUpdateProject) {
+        async updateProjectAC({commit}: { commit: Commit }, data: IDataForUpdateProject): Promise<void> {
             try {
                 commit('updateCurrentProject', data)
                 commit('updateProjectInfoInList', data)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async getProjectListAC({commit}, data: IProjectList[]) {
+        async getProjectListAC({commit}: { commit: Commit }, data: IProjectList[]): Promise<void> {
             try {
                 commit('setProjectList', data)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async getProjectAC({commit}, projectId: number) {
+        async getProjectAC({commit}: { commit: Commit }, projectId: number): Promise<void> {
             try {
                 const response: IProjectResponse = await SocketEmit.getProjectEmit({projectId});
                 commit('setCurrentProject', response);
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async createTaskAC({commit}, data: ITaskResponse) {
+        async createTaskAC({commit}: { commit: Commit }, data: ITaskResponse): Promise<void> {
             try {
                 commit('setTaskInCurrentProject', data)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e);
             }
         },
-        async updateTaskAC({commit}, data: Partial<ITaskShort>) {
+        async updateTaskAC({commit}: { commit: Commit }, data: Partial<ITaskShort>): Promise<void> {
             try {
                 commit('updateTask', data)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async setProjectRoom({commit}, users: Pick<IUser, 'userId' | 'name'>[]) {
+        async setProjectRoom({commit}: { commit: Commit }, users: Pick<IUser, 'userId' | 'name'>[]): Promise<void> {
             commit('setProjectRoom', users)
         },
-        async setBoardRoom({commit}, users: Pick<IUser, 'userId' | 'name'>[]) {
+        async setBoardRoom({commit}: { commit: Commit }, users: Pick<IUser, 'userId' | 'name'>[]): Promise<void> {
             commit('setBoardRoom', users)
         },
-        async updateProjectEditor({commit}, data: Pick<IProject, 'projectId' | 'editor'>) {
+        async updateProjectEditor({commit}: {
+            commit: Commit
+        }, data: Pick<IProject, 'projectId' | 'editor'>): Promise<void> {
             try {
                 commit('updateProjectEditor', data)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async setTotalRecords({commit}, data: { totalCount: number }) {
+        async setTotalRecords({commit}: { commit: Commit }, data: { totalCount: number }): Promise<void> {
             try {
                 commit('setTotalRecords', data.totalCount)
-            } catch (e) {
+            } catch (e: unknown) {
                 setError(e)
             }
         },
-        async resetProjectAction({commit}) {
+        async resetProjectAction({commit}: { commit: Commit }): Promise<void> {
             commit('setProjectRoom', [])
             commit('cleanProjectList')
             commit('setCurrentPage', 1)
             commit('setTotalRecords', 0)
         },
-        async addNewProjectInList({commit}, data: IProjectList) {
+        async addNewProjectInList({commit}: { commit: Commit }, data: IProjectList): Promise<void> {
             commit('addNewProjectInList', data)
         }
     }

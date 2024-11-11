@@ -1,10 +1,10 @@
 <template>
   <div class="content">
-    <project-view v-if="mode === 'view' && $route.params.id && projectState.currentProject.projectId"
-                  :set-mode="setMode"></project-view>
-    <project-edit v-if="mode === 'edit' && $route.params.id && projectState.currentProject.projectId"
-                  :set-mode="setMode"></project-edit>
-    <project-create v-if="mode === 'create'" :setMode="setMode"></project-create>
+    <ProjectView v-if="mode === 'view' && $route.params.id && projectState.currentProject.projectId"
+                 :set-mode="setMode"></ProjectView>
+    <ProjectEdit v-if="mode === 'edit' && $route.params.id && projectState.currentProject.projectId"
+                 :set-mode="setMode"></ProjectEdit>
+    <ProjectCreate v-if="mode === 'create'" :setMode="setMode"></ProjectCreate>
   </div>
 </template>
 
@@ -12,29 +12,30 @@
 import ProjectView from "./ProjectView.vue";
 import ProjectEdit from "./ProjectEdit.vue";
 import ProjectCreate from "./ProjectCreate.vue";
-import {IProjectProps} from "../../../../../../models/projectModels.ts";
+import {IProjectModuleState, IProjectProps} from "../../../../../../models/projectModels.ts";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import {onMounted, onUnmounted, watch} from "vue";
-import {useStore} from "vuex";
-import {useRoute} from "vue-router";
+import {Store, useStore} from "vuex";
+import {RouteLocationNormalizedLoaded, useRoute} from "vue-router";
+import {key, State} from "../../../../../../store/store.ts";
 
-const route = useRoute();
+const route: RouteLocationNormalizedLoaded = useRoute();
 const {mode, setMode} = defineProps<IProjectProps>();
-const store = useStore();
-const projectState = store.state.projectModule;
+const store: Store<State> = useStore(key);
+const projectState: IProjectModuleState = store.state.projectModule;
 
-const joinRoom = (projectId: number) => {
+const joinRoom = (projectId: number): void => {
   SocketEmit.joinRoom({type: 'project', id: projectId});
 }
-const leaveRoom = (projectId: number) => {
+const leaveRoom = (projectId: number): void => {
   SocketEmit.leaveRoom({type: 'project', id: projectId});
   store.commit('projectModule/setProjectRoom', [])
 }
 
-onMounted(() => {
+onMounted((): void => {
   joinRoom(projectState.currentProject.projectId)
 })
-onUnmounted(() => {
+onUnmounted((): void => {
   if (projectState.currentProject.projectId) {
     leaveRoom(projectState.currentProject.projectId)
   }

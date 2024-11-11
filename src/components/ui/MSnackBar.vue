@@ -2,9 +2,9 @@
   <div class="snackbar" v-if="show">
     <div class="msg-block" :class="type">
       <span>{{ text }}</span>
-      <m-button type="none" @click="handleClick" class="close-btn">
-        <close-s-v-g style="vertical-align: center" :stroke="type"/>
-      </m-button>
+      <MButton type="none" @click="handleClick" class="close-btn">
+        <CloseSVG style="vertical-align: center" :stroke="type"/>
+      </MButton>
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ const {show, text, type, closeSnackbar} = defineProps({
     required: true
   },
 })
-const handleClick = () => {
+const handleClick = (): void => {
   closeSnackbar();
 }
 </script>

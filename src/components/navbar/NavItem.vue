@@ -6,14 +6,14 @@
 </template>
 
 <script setup lang="ts">
-import {useRouter} from "vue-router";
+import {Router, useRouter} from "vue-router";
 import SocketEmit from "../../api/socketEmit.ts";
 
 const {path, title, room} = defineProps<{ path: string, title: string, room: string }>()
 
-const router = useRouter();
+const router: Router = useRouter();
 
-const clickHandler = () => {
+const clickHandler = (): void => {
   router.push(path)
   SocketEmit.joinRoom({type: room})
 }
