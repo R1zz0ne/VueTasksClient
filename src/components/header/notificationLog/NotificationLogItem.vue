@@ -10,7 +10,6 @@
       <div class="head">
         <div>#{{ props.taskId }}</div>
         <div>{{ props.name }}</div>
-        <div>- {{ props.notificationId }}</div>
       </div>
       <div class="message">{{ props.message }}</div>
     </div>

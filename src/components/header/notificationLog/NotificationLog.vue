@@ -31,13 +31,14 @@ import NotificationLogItem from "./NotificationLogItem.vue";
 import {computed, ComputedRef, Ref, ref} from "vue";
 import {key, State} from "../../../store/store.ts";
 import {INotificationsLog} from "../../../models/notificationModels.ts";
+import {listMode} from "../../../utils/constants.ts";
 
 const notificationListMode: Ref<string> = ref('active')
 const store: Store<State> = useStore(key);
 const state: State = store.state;
 
 const reversedNotificationLog: ComputedRef<INotificationsLog[]> = computed(() => {
-  if (notificationListMode.value === "active") {
+  if (notificationListMode.value === listMode.active) {
     const activeNotification: INotificationsLog[] = state.notificationModule.notificationLog.filter((el) => !el.isChecked)
     return activeNotification.reverse();
   } else {

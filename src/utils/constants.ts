@@ -36,3 +36,18 @@ export const convTaskList = (array: ITaskList[]): IConvTaskList[] => {
         priority: taskPriorityMap[el.priority]
     }))
 }
+
+//Magic string
+export const typeNumber: "number" = "number";
+export const typeObject: "object" = "object";
+export const modeEdit: "edit" = "edit";
+export const isCloseAll: "all" = "all";
+export enum pageName {
+    tasks = 'tasks',
+    projects = 'projects',
+    board = 'board'
+}
+export enum listMode {
+    active = 'active',
+    completed = 'completed'
+}

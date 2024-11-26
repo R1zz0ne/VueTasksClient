@@ -16,3 +16,6 @@ export interface INotificationsLog {
     isChecked: boolean,
     createdAt: string
 }
+
+export interface ICheckNotificationLog extends Pick<INotificationsLog, 'notificationId' | 'isChecked'> {
+}

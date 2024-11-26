@@ -7,13 +7,15 @@
 </template>
 
 <script setup lang="ts">
+import {isCloseAll} from "../../utils/constants.ts";
+
 const {show, isClose} = defineProps({
   show: {type: Boolean, required: true},
   isClose: {type: String, default: 'all'}
 });
 const emits = defineEmits(['update:show']);
 const hideDialog = (): void => {
-  if (isClose === "all") {
+  if (isClose === isCloseAll) {
     emits('update:show', false);
   }
 }

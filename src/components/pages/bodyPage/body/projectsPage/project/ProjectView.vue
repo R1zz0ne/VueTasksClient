@@ -72,7 +72,7 @@ import MLink from "../../../../../ui/MLink.vue";
 import Task from "../../taskPage/task/Task.vue";
 import EditSVG from "../../../../../ui/svg/EditSVG.vue";
 import {IProjectModuleState, IProjectProps} from "../../../../../../models/projectModels.ts";
-import {taskPriorityMap} from "../../../../../../utils/constants.ts";
+import {taskPriorityMap, typeNumber} from "../../../../../../utils/constants.ts";
 import RecordFooter from "../../RecordFooter.vue";
 import {setError} from "../../../../../../services/setError.ts";
 import {key, State} from "../../../../../../store/store.ts";
@@ -97,10 +97,11 @@ const getTaskAndVisible = async (taskId: number): Promise<void> => {
 }
 
 const handleEdit = (): void => {
-  if (typeof projectStore.currentProject.editor?.userId === 'number') {
+  const {editor} = projectStore.currentProject;
+  if (editor && typeof editor.userId === typeNumber) {
     setError({
       type: "error",
-      message: `Этот проект уже редактирует пользователь "${projectStore.currentProject.editor.name}", попробуйте позже`
+      message: `Этот проект уже редактирует пользователь "${editor.name}", попробуйте позже`
     })
   } else {
     setMode('edit', true);

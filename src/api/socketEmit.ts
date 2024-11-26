@@ -13,8 +13,12 @@ import {
     ITaskUpdateEditor,
     ITaskUpdateRequest
 } from "../models/taskModels.ts";
-import {INotificationsLog} from "../models/notificationModels.ts";
+import {ICheckNotificationLog} from "../models/notificationModels.ts";
+import {IError, ISocketEmitResponse} from "../models/otherModels.ts";
 
+const isErrorResponse = <T>(response: ISocketEmitResponse<T>): response is IError => {
+    return (response as IError).type === 'error'
+}
 
 class SocketEmit {
     socket: Socket = io('ws://localhost:5000', {
@@ -23,53 +27,57 @@ class SocketEmit {
         },
     })
 
-    async #createPromiseEmit(event: string, data: any, isRetry: boolean = false): Promise<any> {
+    async #createPromiseEmit<TRes, TData>(event: string, data: TData, isRetry: boolean = false): Promise<TRes> {
         return new Promise((resolve, reject): void => {
-            this.socket.emit(event, data, async (response: any): Promise<void> => {
-                if (response.type === 'error' && response.message === 'Пользователь не авторизован' && !isRetry) { //TODO: Делать сравнение по коду
-                    try {
-                        await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
-                        const retryResponse = await this.#createPromiseEmit(event, data, true)
-                        resolve(retryResponse);
-                    } catch (e: unknown) {
-                        reject(e);
+            this.socket.emit(event, data, async (response: ISocketEmitResponse<TRes>): Promise<void> => {
+                if (isErrorResponse(response)) {
+                    if (response.statusCode === 401 && !isRetry) {
+                        try {
+                            await this.refreshEmit({refreshToken: localStorage.getItem('refresh')});
+                            const retryResponse: Awaited<TRes> = await this.#createPromiseEmit<TRes, TData>(event, data, true)
+                            resolve(retryResponse);
+                        } catch (e: unknown) {
+                            reject(e);
+                        }
+                    } else if (response.statusCode === 401 && isRetry) {
+                        reject(response);
+                    } else if (response.statusCode !== 401) {
+                        reject(response);
                     }
-                } else if (response.type === 'error' && response.message !== 'Пользователь не авторизован') { //TODO: Делать сравнение по коду
-                    reject(response);
                 } else {
-                    resolve(response);
+                    resolve(response as TRes);
                 }
             })
         })
     }
 
     async loginEmit(data: IAuthForm): Promise<IAuthResponse> {
-        const response: IAuthResponse = await this.#createPromiseEmit('login', data);
+        const response = await this.#createPromiseEmit<IAuthResponse, IAuthForm>('login', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
     async registrationEmit(data: IRegForm): Promise<IAuthResponse> {
-        const response: IAuthResponse = await this.#createPromiseEmit('registration', data);
+        const response = await this.#createPromiseEmit<IAuthResponse, IRegForm>('registration', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
-    async logoutEmit(data: { refreshToken: string | null }): Promise<[]> {
-        return await this.#createPromiseEmit('logout', data);
+    async logoutEmit(data: { refreshToken: string | null }): Promise<Object> {
+        return await this.#createPromiseEmit<Object, { refreshToken: string | null }>('logout', data);
     }
 
     async refreshEmit(data: { refreshToken: string | null }): Promise<IAuthResponse> {
-        const response: IAuthResponse = await this.#createPromiseEmit('refresh', data);
+        const response = await this.#createPromiseEmit<IAuthResponse, { refreshToken: string | null }>('refresh', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
 
     async getUsersEmit(data: { query: string }): Promise<IUser[]> {
-        return await this.#createPromiseEmit('getUsers', data);
+        return await this.#createPromiseEmit<IUser[], { query: string }>('getUsers', data);
     }
 
     //projects
@@ -86,7 +94,7 @@ class SocketEmit {
     }
 
     async getProjectEmit(data: { projectId: number }): Promise<IProjectResponse> {
-        return await this.#createPromiseEmit('getProject', data);
+        return await this.#createPromiseEmit<IProjectResponse, { projectId: number }>('getProject', data);
     }
 
     createTaskEmit(data: ITaskRequest): void {
@@ -103,7 +111,7 @@ class SocketEmit {
 
     //tasks
     async getTaskEmit(data: { taskId: number }): Promise<ITaskResponse> {
-        return await this.#createPromiseEmit('getTask', data);
+        return await this.#createPromiseEmit<ITaskResponse, { taskId: number }>('getTask', data);
     }
 
     updateTaskEmit(data: ITaskUpdateRequest): void {
@@ -127,8 +135,10 @@ class SocketEmit {
         this.socket.emit('getNotification', null);
     }
 
-    async checkNotificationEmit(notificationId: number): Promise<Pick<INotificationsLog, 'notificationId' | 'isChecked'>> {
-        return await this.#createPromiseEmit('checkNotification', {notificationId});
+    async checkNotificationEmit(notificationId: number): Promise<ICheckNotificationLog> {
+        return await this.#createPromiseEmit<ICheckNotificationLog, {
+            notificationId: number
+        }>('checkNotification', {notificationId});
     }
 
     //Room

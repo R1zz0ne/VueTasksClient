@@ -15,6 +15,7 @@ import {Router, useRouter} from "vue-router";
 import SocketEmit from "../api/socketEmit.ts";
 import {key, State} from "../store/store.ts";
 import {IUserModuleState} from "../models/userModels.ts";
+import {pageName} from "../utils/constants.ts";
 
 const store: Store<State> = useStore(key);
 const userModule: IUserModuleState = store.state.userModule;
@@ -27,15 +28,16 @@ watchEffect((): void => {
 })
 
 router.beforeEach((to, from, next): void => {
-  if (from.name === 'tasks' && to.name !== 'tasks') {
+  if (from.name === pageName.tasks && to.name !== pageName.tasks) {
     if (from.params.id) {
       SocketEmit.leaveRoom({type: 'task', id: Number(from.params.id)})
     }
     store.dispatch('taskModule/resetAction')
     SocketEmit.leaveRoom({type: 'taskList'})
   }
-  if (from.name === 'projects' && to.name !== 'projects') {
-    if (to.name !== 'board') {
+  if (from.name === pageName.projects && to.name !== pageName.projects) {
+    if (to.name !== pageName.board) {
+      store.commit('projectModule/cleanProjectList', [])
       store.commit('projectModule/setCurrentProject', {})
     }
     if (from.params.id) {
@@ -44,7 +46,11 @@ router.beforeEach((to, from, next): void => {
     store.dispatch('projectModule/resetProjectAction');
     SocketEmit.leaveRoom({type: 'projectList'})
   }
-  if (from.name === 'board' && to.name !== 'board') {
+  if (from.name === pageName.board && to.name !== pageName.board) {
+    if (to.name !== pageName.board) {
+      store.commit('projectModule/cleanProjectList', [])
+      store.commit('projectModule/setCurrentProject', {})
+    }
     if (from.params.id) {
       SocketEmit.leaveRoom({type: 'board', id: Number(from.params.id)})
       store.commit('projectModule/setCurrentProject', {})

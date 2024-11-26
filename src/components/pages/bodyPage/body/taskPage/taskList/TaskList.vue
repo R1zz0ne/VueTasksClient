@@ -41,7 +41,11 @@ import TaskListItems from "./TaskListItems.vue";
 import {ref, watchEffect} from "vue";
 import MButton from "../../../../../ui/MButton.vue";
 import MSelect from "../../../../../ui/MSelect.vue";
-import {convTaskList, taskPriorityMap, taskStatusMap} from "../../../../../../utils/constants.ts";
+import {
+  convTaskList, listMode,
+  taskPriorityMap,
+  taskStatusMap
+} from "../../../../../../utils/constants.ts";
 import {Store, useStore} from "vuex";
 import {
   IConvTaskList,
@@ -67,11 +71,11 @@ const filterableArray = ref<IConvTaskList[]>([])
 const taskListMode = ref<ITaskListMode>("active");
 
 const setTaskListMode = async (value: ITaskListMode): Promise<void> => {
-  if (value === 'active' && taskListMode.value !== 'active') {
+  if (value === listMode.active && taskListMode.value !== listMode.active) {
     store.commit('taskModule/setCurrentPage', 1)
     store.commit('taskModule/cleanTaskList')
     await SocketEmit.getTaskListEmit(store.state.taskModule.pageInfo.page);
-  } else if (value === 'completed' && taskListMode.value !== 'completed') {
+  } else if (value === listMode.completed && taskListMode.value !== listMode.completed) {
     store.commit('taskModule/setCurrentPage', 1)
     store.commit('taskModule/cleanTaskList')
     await SocketEmit.getCloseTaskListEmit(store.state.taskModule.pageInfo.page);
@@ -118,7 +122,7 @@ const handleGetTaskMore = async (): Promise<void> => {
   if (taskModule.pageInfo.totalPages > taskModule.pageInfo.page) {
     const newPage: number = taskModule.pageInfo.page + 1;
     store.commit('taskModule/setCurrentPage', newPage);
-    if (taskListMode.value === 'active') {
+    if (taskListMode.value === listModeActive) {
       await SocketEmit.getTaskListEmit(newPage);
     } else {
       await SocketEmit.getCloseTaskListEmit(newPage);

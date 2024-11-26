@@ -93,9 +93,8 @@ const updateColumns = (tasksArray: ITaskShort[]) => {
 };
 
 watchEffect(() => {
-  if (store.state.projectModule.currentProject.projectId) { //TODO: возможно какая-то дичь написана, зачем тригериться на current project
+  if (store.state.projectModule.currentProject.projectId) {
     updateColumns(store.state.projectModule.currentProject.tasks);
-  } else {
   }
 })
 

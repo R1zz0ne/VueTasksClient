@@ -5,7 +5,7 @@
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       :readonly="readonly"
-      :class="[readonly ? 'readonly' : '']"
+      :class="{readonly: readonly}"
   >
 </template>
 
@@ -37,6 +37,10 @@ input:focus {
 
 input::placeholder {
   color: var(--neutral-400);
+}
+
+error {
+  border: 2px var(--danger-400) solid;
 }
 
 .readonly {

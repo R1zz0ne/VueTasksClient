@@ -28,6 +28,7 @@ import {useStore} from "vuex";
 import SocketEmit from "../../../../../api/socketEmit.ts";
 import {key, State} from "../../../../../store/store.ts";
 import {IProjectModuleState, IProjectVisibleMode} from "../../../../../models/projectModels.ts";
+import {modeEdit} from "../../../../../utils/constants.ts";
 
 const mode = ref<IProjectVisibleMode>("view");
 const searchInput = ref<string>("");
@@ -35,13 +36,13 @@ const state: State = useStore(key).state;
 const projectState: IProjectModuleState = state.projectModule;
 
 const setMode = (value: IProjectVisibleMode, updateEditor: boolean): void => {
-  if (value === 'edit' && updateEditor) {
+  if (value === modeEdit && updateEditor) {
     SocketEmit.updateProjectEditor({
       projectId: projectState.currentProject.projectId,
       editor: state.userModule.user.userId
     })
   }
-  if (mode.value === 'edit' && value !== 'edit' && updateEditor) {
+  if (mode.value === modeEdit && value !== modeEdit && updateEditor) {
     SocketEmit.updateProjectEditor({
       projectId: projectState.currentProject.projectId,
       editor: null

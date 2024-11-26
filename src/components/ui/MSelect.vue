@@ -15,13 +15,14 @@
 <script setup lang="ts">
 import {computed, ComputedRef, ref, watch} from "vue";
 import {ISelectProps, ISelectPropsElements} from "../../models/otherModels.ts";
+import {typeNumber, typeObject} from "../../utils/constants.ts";
 
 const {modelValue, elements, type} = defineProps<ISelectProps>()
 const emits = defineEmits(['update:modelValue']);
 
 const onChange = (event: Event): void => {
   const value: string = (event.target as HTMLInputElement).value;
-  if (type === "number") {
+  if (type === typeNumber) {
     emits('update:modelValue', Number(value));
   } else {
     emits('update:modelValue', value);
@@ -29,13 +30,13 @@ const onChange = (event: Event): void => {
 }
 
 const validElements: ComputedRef<ISelectPropsElements | {}> = computed(() => {
-  return typeof elements === 'object' && elements !== null && !Array.isArray(elements)
+  return typeof elements === typeObject && elements !== null && !Array.isArray(elements)
       ? elements
       : {}
 })
 const selectRef = ref<HTMLSelectElement | null>(null);
 watch(() => modelValue, (newValue) => {
-  if (selectRef.value && selectRef.value.value !== newValue) {
+  if (selectRef.value && newValue !== null && selectRef.value.value !== newValue) {
     selectRef.value.value = newValue;
   }
 })

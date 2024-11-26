@@ -14,6 +14,7 @@ import {RouteLocationNormalizedLoaded, useRoute} from "vue-router";
 import SocketEmit from "../../../../../../api/socketEmit.ts";
 import {key, State} from "../../../../../../store/store.ts";
 import {ITaskModuleState, ITaskVisibleMode} from "../../../../../../models/taskModels.ts";
+import {modeEdit} from "../../../../../../utils/constants.ts";
 
 const mode = ref<ITaskVisibleMode>('view');
 const route: RouteLocationNormalizedLoaded = useRoute();
@@ -22,7 +23,7 @@ const state: State = store.state;
 const taskState: ITaskModuleState = state.taskModule;
 
 const setMode = (value: ITaskVisibleMode): void => {
-  if (value === 'edit') {
+  if (value === modeEdit) {
     SocketEmit.updateTaskEditor({
       taskId: taskState.currentTask.taskId,
       editor: state.userModule.user.userId

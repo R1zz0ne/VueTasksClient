@@ -54,3 +54,5 @@ export interface IError {
     errors?: string[],
     statusCode?: number
 }
+
+export type ISocketEmitResponse<T> = IError | T
