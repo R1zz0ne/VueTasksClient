@@ -1,6 +1,6 @@
 import {describe, it, expect, vi,} from "vitest";
 import {store} from "../store.ts";
-import {NotificationModule} from "../storeModules/notificationModule.ts";
+import {NotificationModule} from "./notificationModule.ts";
 import {INotificationsModuleState} from "../../models/notificationModels.ts";
 import SocketEmit from "../../api/socketEmit.ts";
 import {setError} from "../../services/setError.ts";
