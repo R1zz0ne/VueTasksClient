@@ -65,7 +65,7 @@ watchEffect(async (): Promise<void> => {
         setSelectUser({userId: 0, name: ''})
       } else if (selectUser.name !== inputValue.value) {
         try {
-          resArray.value = await SocketEmit.getUsersEmit({query: inputValue.value})
+          resArray.value = await SocketEmit.getUsersEmit({query: inputValue.value}) || [];
         } catch (e: unknown) {
           setError(e)
         }

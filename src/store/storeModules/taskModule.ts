@@ -26,11 +26,11 @@ export const TaskModule: Module<ITaskModuleState, State> = {
     getters: {},
     mutations: {
         setCurrentTask(state: ITaskModuleState, task: ITaskResponse): void {
-            state.currentTask = task;
+            state.currentTask = {...task};
         },
         updateTask(state: ITaskModuleState, task: ITaskResponse): void {
             if (state.currentTask.taskId === task.taskId) {
-                state.currentTask = task;
+                state.currentTask = {...task};
             }
         },
         setTaskList(state: ITaskModuleState, taskList: ITaskList[]): void {
@@ -50,11 +50,11 @@ export const TaskModule: Module<ITaskModuleState, State> = {
             }
         },
         setTaskRoom(state: ITaskModuleState, userList: Pick<IUser, 'userId' | 'name'>[]): void {
-            state.taskRoom = userList
+            state.taskRoom = [...userList]
         },
         updateTaskEditor(state: ITaskModuleState, data: Pick<ITaskResponse, 'taskId' | 'editor'>): void {
             if (state.currentTask.taskId === data.taskId) {
-                state.currentTask.editor = data.editor;
+                state.currentTask.editor = data.editor?.userId ? {...data.editor} : data.editor;
             }
         },
         updateStatusTask(state: ITaskModuleState, task: ITaskRequestUpdStatus): void {
@@ -78,14 +78,13 @@ export const TaskModule: Module<ITaskModuleState, State> = {
             const countInLastPage: number = (state.pageInfo.page * 20) - state.pageInfo.totalRecords;
             const totalRecords: number = state.pageInfo.totalRecords + 1;
             const totalPages: number = Math.ceil(totalRecords / 20);
-            state.pageInfo.totalRecords = totalRecords;
-            state.pageInfo.totalPages = totalPages;
             if (isLastPage && countInLastPage > 0) {
                 state.taskList = [...state.taskList, task]
             } else if (state.pageInfo.totalPages === 0) {
-                console.log(state.pageInfo.totalPages)
                 state.taskList = [...state.taskList, task]
             }
+            state.pageInfo.totalRecords = totalRecords;
+            state.pageInfo.totalPages = totalPages;
         }
     },
     actions: {
@@ -97,79 +96,40 @@ export const TaskModule: Module<ITaskModuleState, State> = {
                 setError(e)
             }
         },
-        async updateTaskAC({commit}: { commit: Commit }, data: ITaskResponse): Promise<void> {
-            try {
-                commit('updateTask', data)
-                commit('updateTaskInfoInList', data)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        updateTaskAC({commit}: { commit: Commit }, data: ITaskResponse): void {
+            commit('updateTask', data)
+            commit('updateTaskInfoInList', data)
         },
-        async getTaskListAC({commit}: { commit: Commit }, data: ITaskList[]): Promise<void> {
-            try {
-                commit('setTaskList', data)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        getTaskListAC({commit}: { commit: Commit }, data: ITaskList[]): void {
+            commit('setTaskList', data)
         },
-        async getCloseTaskListAC({commit}: { commit: Commit }, data: ITaskList[]): Promise<void> {
-            try {
-                commit('setTaskList', data)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        getCloseTaskListAC({commit}: { commit: Commit }, data: ITaskList[]): void {
+            commit('setTaskList', data)
         },
-        async setTaskRoom({commit}: { commit: Commit }, users: Pick<IUser, 'userId' | 'name'>[]): Promise<void> {
-            try {
-                commit('setTaskRoom', users)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        setTaskRoom({commit}: { commit: Commit }, users: Pick<IUser, 'userId' | 'name'>[]): void {
+            commit('setTaskRoom', users)
         },
-        async updateTaskEditor({commit}: {
-            commit: Commit
-        }, data: Pick<ITaskResponse, 'taskId' | 'editor'>): Promise<void> {
-            try {
-                commit('updateTaskEditor', data)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        updateTaskEditor({commit}: { commit: Commit }, data: Pick<ITaskResponse, 'taskId' | 'editor'>): void {
+            commit('updateTaskEditor', data)
         },
-        async updateStatusTask({commit, state}: {
-            commit: Commit,
-            state: ITaskModuleState
-        }, data: ITaskRequestUpdStatus): Promise<void> {
-            try {
-                if (state.currentTask.taskId) {
-                    commit('updateStatusTask', data)
-                }
-                commit('updateTaskInfoInList', data)
-            } catch (e: unknown) {
-                setError(e)
+        updateStatusTask({commit, state}: { commit: Commit, state: ITaskModuleState },
+                         data: ITaskRequestUpdStatus): void {
+            if (state.currentTask.taskId) {
+                commit('updateStatusTask', data)
             }
+            commit('updateTaskInfoInList', data)
         },
-        async setTotalRecords({commit}: { commit: Commit }, data: { totalCount: number }): Promise<void> {
-            try {
-                commit('setTotalRecords', data.totalCount)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        setTotalRecords({commit}: { commit: Commit }, data: { totalCount: number }): void {
+            commit('setTotalRecords', data.totalCount)
         },
-        async resetAction({commit}: { commit: Commit }): Promise<void> {
-            try {
-                commit('setCurrentTask', {})
-                commit('setTaskRoom', [])
-                commit('cleanTaskList')
-                commit('setCurrentPage', 1)
-                commit('setTotalRecords', 0)
-            } catch (e: unknown) {
-                setError(e)
-            }
+        resetAction({commit}: { commit: Commit }): void {
+            commit('setCurrentTask', {})
+            commit('setTaskRoom', [])
+            commit('cleanTaskList')
+            commit('setCurrentPage', 1)
+            commit('setTotalRecords', 0)
         },
-        async addNewTaskInList({commit, state}: {
-            commit: Commit,
-            state: ITaskModuleState
-        }, data: ITaskList): Promise<void> {
+        addNewTaskInList({commit, state}: { commit: Commit, state: ITaskModuleState }, data: ITaskList): void {
             if (data.status === 'completed' && state.taskListMode === 'completed') {
                 commit('addNewTaskInList', data)
             } else if (data.status !== 'completed' && state.taskListMode === 'active') {

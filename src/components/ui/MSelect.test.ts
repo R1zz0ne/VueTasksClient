@@ -1,53 +1,56 @@
 /*
 * @vitest-environment happy-dom
  */
-import {describe, it, expect, vi} from 'vitest';
+import {describe, expect, it} from 'vitest';
 import {mount} from "@vue/test-utils";
-import MSelect from "../../../src/components/ui/MSelect.vue";
+import MSelect from "./MSelect.vue";
+import {taskPriorityMap, taskStatusMap} from "../../utils/constants.ts";
 
-
-describe('SelectComponent', () => {
+describe('MSelect', () => {
     it('Корректно рендерится с начальным значением', () => {
-        const elements = { option1: 'Option 1', option2: 'Option 2' }
+        const elements = taskStatusMap;
         const wrapper = mount(MSelect, {
             props: {
-                modelValue: 'option1',
+                modelValue: 'assigned',
                 elements,
                 type: 'string'
             }
         })
-        expect(wrapper.find('select').element.value).toBe('option1')
+        expect(wrapper.find('select').element.value).toBe('assigned')
     })
     it('Проверка рендера всех опций', () => {
-        const elements = { option1: 'Option 1', option2: 'Option 2', option3: 'Option 3' }
+        const elements = taskPriorityMap;
         const wrapper = mount(MSelect, {
             props: {
-                modelValue: 'option1',
+                modelValue: 'high',
                 elements,
                 type: 'string'
             }
         })
         const options = wrapper.findAll('option')
-        expect(options.length).toBe(3)
-        expect(options[0].text()).toBe('Option 1')
-        expect(options[1].text()).toBe('Option 2')
-        expect(options[2].text()).toBe('Option 3')
+        expect(options.length).toBe(4)
+        expect(options[0].text()).toBe('1 - Критический')
+        expect(options[1].text()).toBe('2 - Высокий')
+        expect(options[2].text()).toBe('3 - Средний')
+        expect(options[3].text()).toBe('4 - Низкий')
     })
     it('Проверка изменения значения для строки (type: string)', async () => {
-        const elements = { option1: 'Option 1', option2: 'Option 2' }
+        const elements = taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
-                modelValue: 'option1',
+                modelValue: 'inProgress',
                 elements,
                 type: 'string'
             }
         })
-        await wrapper.find('select').setValue('option2')
-        expect(wrapper.find('select').element.value).toBe('option2')
-        expect(wrapper.emitted('update:modelValue')[0]).toEqual(['option2'])
+        await wrapper.find('select').setValue('inProgress')
+        expect(wrapper.find('select').element.value).toBe('inProgress')
+        const emitted = wrapper.emitted('update:modelValue')
+        expect(emitted).toBeDefined()
+        expect(emitted![0]).toEqual(['inProgress'])
     })
     it('Проверка изменения значения для числа (type: number)', async () => {
-        const elements = { 1: 'Option 1', 2: 'Option 2' }
+        const elements = {1: 'Option 1', 2: 'Option 2'} as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: '1',
@@ -57,10 +60,12 @@ describe('SelectComponent', () => {
         })
         await wrapper.find('select').setValue('2')
         expect(wrapper.find('select').element.value).toBe('2')
-        expect(wrapper.emitted('update:modelValue')[0]).toEqual([2])
+        const emitted = wrapper.emitted('update:modelValue')
+        expect(emitted).toBeDefined()
+        expect(emitted![0]).toEqual([2])
     })
     it('Рендер без опций при пустом elements', () => {
-        const elements = {}
+        const elements = {} as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: null,
@@ -72,7 +77,7 @@ describe('SelectComponent', () => {
         expect(wrapper.findAll('option').length).toBe(0)
     })
     it('Проверка поведения при нечисловых значениях для type: number', async () => {
-        const elements = { a: 'Option A', b: 'Option B' }
+        const elements = {a: 'Option A', b: 'Option B'} as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: 'a',
@@ -81,10 +86,12 @@ describe('SelectComponent', () => {
             }
         })
         await wrapper.find('select').setValue('b')
-        expect(wrapper.emitted('update:modelValue')[0]).toEqual([NaN])
+        const emitted = wrapper.emitted('update:modelValue')
+        expect(emitted).toBeDefined()
+        expect(emitted![0]).toEqual([NaN])
     })
     it('Проверка обновления при изменении modelValue', async () => {
-        const elements = { option1: 'Option 1', option2: 'Option 2' }
+        const elements = {option1: 'Option 1', option2: 'Option 2'} as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: 'option1',
@@ -92,11 +99,11 @@ describe('SelectComponent', () => {
                 type: 'string'
             }
         })
-        await wrapper.setProps({ modelValue: 'option2' })
+        await wrapper.setProps({modelValue: 'option2'})
         expect(wrapper.find('select').element.value).toBe('option2')
     })
     it('Проверка поведения при некорректных данных в elements', () => {
-        const elements = 'not an object'  // Некорректные данные
+        const elements = 'not an object' as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: null,
@@ -107,7 +114,7 @@ describe('SelectComponent', () => {
         expect(wrapper.findAll('option').length).toBe(0)
     })
     it('Проверка поведения при невалидном type', () => {
-        const elements = { option1: 'Option 1', option2: 'Option 2' }
+        const elements = {option1: 'Option 1', option2: 'Option 2'} as unknown as typeof taskStatusMap
         const wrapper = mount(MSelect, {
             props: {
                 modelValue: 'option1',

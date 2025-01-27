@@ -1,6 +1,6 @@
 <template>
   <div class="snackbar" v-if="show">
-    <div class="msg-block" :class="type">
+    <div class="msg-block" :class="type || 'info'">
       <span>{{ text }}</span>
       <MButton type="none" @click="handleClick" class="close-btn">
         <CloseSVG style="vertical-align: center" :stroke="type"/>
@@ -12,18 +12,11 @@
 <script setup lang="ts">
 import CloseSVG from "./svg/CloseSVG.vue";
 import MButton from "./MButton.vue";
+import {ISnackBarProps} from "../../models/notificationModels.ts";
 
-const {show, text, type, closeSnackbar} = defineProps({
-  show: Boolean,
-  text: String,
-  type: String,
-  closeSnackbar: {
-    type: Function,
-    required: true
-  },
-})
+const {show, text, type, closeSnackBar} = defineProps<ISnackBarProps>();
 const handleClick = (): void => {
-  closeSnackbar();
+  closeSnackBar();
 }
 </script>
 

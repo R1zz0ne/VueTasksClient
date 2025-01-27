@@ -5,7 +5,16 @@ export interface INotificationsModuleState {
 
 export interface IActionNotification {
     message: string,
-    type: 'error' | 'info' | 'success' | 'warning'
+    type: ITypeNotification
+}
+
+export type ITypeNotification = 'error' | 'info' | 'success' | 'warning'
+
+export interface ISnackBarProps {
+    show: boolean,
+    text: string,
+    type?: ITypeNotification,
+    closeSnackBar: Function
 }
 
 export interface INotificationsLog {

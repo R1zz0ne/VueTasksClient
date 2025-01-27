@@ -39,12 +39,12 @@ export interface IIsFocus {
 export interface IMTextareaProps {
     modelValue?: string
     rows?: string
-    disabled?: string
+    disabled?: boolean
 }
 
 export interface IUseSnackbarReturn {
-    showSnackbar: () => void,
-    closeSnackbar: () => void,
+    showSnackBar: () => void,
+    closeSnackBar: () => void,
     show: Ref<boolean>
 }
 

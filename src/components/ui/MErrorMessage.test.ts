@@ -3,9 +3,9 @@
  */
 import {describe, it, expect} from 'vitest';
 import {mount} from "@vue/test-utils";
-import MErrorMessage from "../../../src/components/ui/MErrorMessage.vue";
+import MErrorMessage from "./MErrorMessage.vue";
 
-describe('MErrorMessage tests', () => {
+describe('MErrorMessage', () => {
     it('Проверка отрисовки с пустым массивом ошибок', () => {
         const myError = {_errors: []}
         const wrapper = mount(MErrorMessage, {

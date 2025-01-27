@@ -3,10 +3,10 @@
  */
 import {describe, it, expect} from 'vitest';
 import {mount} from "@vue/test-utils";
-import MInput from "../../../src/components/ui/MInput.vue";
+import MInput from "./MInput.vue";
 
 
-describe('MInput tests', () => {
+describe('MInput', () => {
     //Проверка рендера
     it('Проверка создания и видимости', () => {
         const wrapper = mount(MInput)
@@ -31,7 +31,7 @@ describe('MInput tests', () => {
         const wrapper = mount(MInput, {
             props: {
                 modelValue: '',
-                'onUpdate:modelValue': (e) => wrapper.setProps({modelValue: e}),
+                'onUpdate:modelValue': (e: any) => wrapper.setProps({modelValue: e}),
             }
         })
         await wrapper.find('input').setValue('Test update model value!')

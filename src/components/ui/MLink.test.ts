@@ -3,12 +3,17 @@
  */
 import {describe, it, expect, vi} from 'vitest';
 import {mount} from "@vue/test-utils";
-import MLink from "../../../src/components/ui/MLink.vue";
+import MLink from "./MLink.vue";
 
 
-describe('MLink tests', () => {
+describe('MLink', () => {
     it('Проверка создания и видимости', () => {
-        const wrapper = mount(MLink)
+        const wrapper = mount(MLink, {
+            props: {
+                clickFunc: () => {
+                }, id: 1, object: 'test'
+            }
+        })
         expect(wrapper.isVisible()).toBe(true)
         expect(wrapper.find('a').exists()).toBeTruthy()
     })

@@ -50,7 +50,6 @@ export const UserModule: Module<IUserModuleState, State> = {
                 const response: IAuthResponse = await SocketEmit.loginEmit(data);
                 commit('setAuthData', response)
             } catch (e: unknown) {
-                console.log(e)
                 setError(e);
             }
         },

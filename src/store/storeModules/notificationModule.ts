@@ -19,10 +19,10 @@ export const NotificationModule: Module<INotificationsModuleState, State> = {
             state.actionNotifications.push({...data});
         },
         setNotificationLog(state: INotificationsModuleState, data: INotificationsLog[]): void {
-            state.notificationLog = data;
+            state.notificationLog = [...data];
         },
         setNewNotificationLog(state: INotificationsModuleState, data: INotificationsLog): void {
-            state.notificationLog.push(data);
+            state.notificationLog.push({...data});
         },
         updateCheckStatus(state: INotificationsModuleState, data: Pick<INotificationsLog, 'notificationId' | 'isChecked'>): void {
             const index: number = state.notificationLog.findIndex((el: INotificationsLog): boolean => el.notificationId === data.notificationId)
@@ -38,9 +38,8 @@ export const NotificationModule: Module<INotificationsModuleState, State> = {
         async getNewNotificationLog({commit}: { commit: Commit }, data: INotificationsLog): Promise<void> {
             commit('setNewNotificationLog', data);
         },
-        async checkNotification({commit}: {
-            commit: Commit
-        }, data: Pick<INotificationsLog, 'notificationId'>): Promise<void> {
+        async checkNotification({commit}: { commit: Commit },
+                                data: Pick<INotificationsLog, 'notificationId'>): Promise<void> {
             try {
                 const response: Pick<INotificationsLog, 'notificationId' | 'isChecked'> =
                     await SocketEmit.checkNotificationEmit(data.notificationId);
@@ -49,6 +48,5 @@ export const NotificationModule: Module<INotificationsModuleState, State> = {
                 setError(e)
             }
         }
-
     }
 }

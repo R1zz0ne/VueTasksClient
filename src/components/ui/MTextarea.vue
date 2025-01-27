@@ -1,8 +1,8 @@
 <template>
-  <div :class="[disabled && disabled === 'true' ? 'text-area-disabled' : 'text-area-active']"
+  <div :class="[disabled ? 'text-area-disabled' : 'text-area-active']"
        :style="[rows ? `height: ${2+Number(rows)*16}px` : 'height:82px']">
   <textarea
-      :class="[disabled && disabled === 'true' ? 'disabled' : 'active']"
+      :class="[disabled ? 'disabled' : 'active']"
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       :rows="rows ? rows : 5"
@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import {IMTextareaProps} from "../../models/otherModels.ts";
 
-const {modelValue, rows} = defineProps<IMTextareaProps>()
+const {modelValue, rows, disabled} = defineProps<IMTextareaProps>()
 </script>
 
 <style scoped>
