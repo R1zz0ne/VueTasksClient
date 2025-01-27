@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import {convTaskList, datePickerFormat} from "./constants.ts";
+import {convTaskList, datePickerFormat, isErrorResponse} from "./constants.ts";
 import {ITaskList} from "../models/taskModels.ts";
 
 
@@ -35,5 +35,17 @@ describe('convTaskList', () => {
         ]
         const result = convTaskList(mockTaskList);
         expect(result).toEqual(expectedResult);
+    })
+})
+
+describe('isErrorResponse', () => {
+    it.each([
+        ['error', {type: "error", message: "test"}, true],
+        ['warning', {type: "warning", message: "test"}, false],
+        [undefined, {message: "test"}, false],
+        [null, {type: null, message: "test"}, false]
+    ])('Проверка является ли ответ ошибкой с type = %s', (type, data, result) => {
+        const isError = isErrorResponse(data);
+        expect(isError).toBe(result);
     })
 })

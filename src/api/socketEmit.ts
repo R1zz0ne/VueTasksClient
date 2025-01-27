@@ -14,11 +14,8 @@ import {
     ITaskUpdateRequest
 } from "../models/taskModels.ts";
 import {ICheckNotificationLog} from "../models/notificationModels.ts";
-import {IError, ISocketEmitResponse} from "../models/otherModels.ts";
-
-const isErrorResponse = <T>(response: ISocketEmitResponse<T>): response is IError => {
-    return (response as IError).type === 'error'
-}
+import {ISocketEmitResponse} from "../models/otherModels.ts";
+import {isErrorResponse} from "../utils/constants.ts";
 
 class SocketEmit {
     socket: Socket = io('ws://localhost:5000', {

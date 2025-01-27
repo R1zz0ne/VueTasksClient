@@ -1,4 +1,5 @@
 import {IConvTaskList, ITaskList} from "../models/taskModels.ts";
+import {IError, ISocketEmitResponse} from "../models/otherModels.ts";
 
 export const datePickerFormat = (date: Date): string => {
     const day: number = date.getDate();
@@ -42,12 +43,18 @@ export const typeNumber: "number" = "number";
 export const typeObject: "object" = "object";
 export const modeEdit: "edit" = "edit";
 export const isCloseAll: "all" = "all";
+
 export enum pageName {
     tasks = 'tasks',
     projects = 'projects',
     board = 'board'
 }
+
 export enum listMode {
     active = 'active',
     completed = 'completed'
+}
+
+export const isErrorResponse = <T>(response: ISocketEmitResponse<T>): response is IError => {
+    return (response as IError).type === 'error'
 }
