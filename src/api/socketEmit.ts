@@ -17,7 +17,7 @@ import {ICheckNotificationLog} from "../models/notificationModels.ts";
 import {ISocketEmitResponse} from "../models/otherModels.ts";
 import {isErrorResponse} from "../utils/constants.ts";
 
-class SocketEmit {
+export class SocketEmit {
     socket: Socket = io('ws://localhost:5000', {
         auth: {
             accessToken: localStorage.getItem('token') as string

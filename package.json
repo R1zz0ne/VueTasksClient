@@ -12,7 +12,6 @@
   "dependencies": {
     "@vuepic/vue-datepicker": "^8.3.2",
     "@vueuse/core": "^10.9.0",
-    "axios": "^1.6.7",
     "socket.io-client": "^4.7.5",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
@@ -21,13 +20,12 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/node": "^22.10.7",
     "@types/vue": "^2.0.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "@vue/test-utils": "^2.4.6",
     "globals": "^15.11.0",
-    "happy-dom": "^15.7.4",
+    "happy-dom": "^16.7.3",
     "typescript": "^5.2.2",
     "vite": "^5.1.0",
     "vitest": "^2.1.1",
