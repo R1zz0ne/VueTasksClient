@@ -49,10 +49,14 @@ export class SocketEmit {
     }
 
     async loginEmit(data: IAuthForm): Promise<IAuthResponse> {
-        const response = await this.#createPromiseEmit<IAuthResponse, IAuthForm>('login', data);
-        (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
-        this.socket.disconnect().connect();
-        return response
+        try {
+            const response = await this.#createPromiseEmit<IAuthResponse, IAuthForm>('login', data);
+            (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
+            this.socket.disconnect().connect();
+            return response
+        } catch (e: unknown) {
+            throw e
+        }
     }
 
     async registrationEmit(data: IRegForm): Promise<IAuthResponse> {

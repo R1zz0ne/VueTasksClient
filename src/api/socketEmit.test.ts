@@ -27,12 +27,13 @@ vi.mock('socket.io-client', () => {
         io: vi.fn(() => ({
             emit: emitMock,
             auth: {},
-            disconnect: vi.fn(() => ({connect: vi.fn()})),
+            disconnect: vi.fn().mockReturnThis(),
+            connect: vi.fn()
         })),
     };
 });
 
-describe('SocketEmit', () => {
+describe('SocketEmit.#createPromiseEmit', () => {
     let socketEmit: SocketEmit;
     let mockSocket: any;
 
@@ -51,10 +52,8 @@ describe('SocketEmit', () => {
         mockSocket.emit.mockImplementation((event: string, data: any, callback: Function) => {
             callback(testResponse);
         });
-
         await expect(socketEmit.loginEmit(testData)).resolves.toEqual(testResponse);
     });
-
     it('#createPromiseEmit. Возврат ошибки сразу если не ошибка авторизации', async () => {
         const testData = {email: 'test@test.com', password: 'password'};
         const errorResponse = {statusCode: 500, type: "error", message: 'Server error'};
@@ -62,10 +61,8 @@ describe('SocketEmit', () => {
         mockSocket.emit.mockImplementation((event, data, callback) => {
             callback(errorResponse);
         });
-
         await expect(socketEmit.loginEmit(testData)).rejects.toEqual(errorResponse);
     });
-
     it('#createPromiseEmit. Успешный ответ после ошибки авторизации', async () => {
         const testData = {email: 'test@test.com', password: 'password'};
         const error401 = {statusCode: 401, type: "error"};
@@ -99,7 +96,6 @@ describe('SocketEmit', () => {
         expect(mockSocket.emit).toHaveBeenNthCalledWith(2, 'refresh', {refreshToken: 'refresh-token'}, expect.any(Function));
         expect(mockSocket.emit).toHaveBeenNthCalledWith(3, 'login', testData, expect.any(Function));
     });
-
     it('#createPromiseEmit. Возврат ошибки после refresh при повторной попытке', async () => {
         const testData = {email: 'test@test.com', password: 'password'};
         const error401 = {statusCode: 401, type: "error"};
@@ -108,9 +104,35 @@ describe('SocketEmit', () => {
         mockSocket.emit.mockImplementation((event, data, callback) => {
             callback(error401);
         });
-
         socketEmit.refreshEmit = vi.fn().mockRejectedValueOnce(refreshError);
-
         await expect(socketEmit.loginEmit(testData)).rejects.toEqual(refreshError);
+    });
+    it('loginEmit. Успешный ответ', async () => {
+        const testData = {email: 'test@test.com', password: 'password'};
+        const testResponse = {
+            accessToken: 'response-accessToken', refreshToken: 'response-refreshToken', user: {
+                userId: 1, name: 'test', email: 'test@test.com'
+            }
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event: string, data: any, callback: Function) => {
+            callback(testResponse);
+        });
+        await socketEmit.loginEmit(testData);
+        expect(socketEmit.socket.auth).toEqual({accessToken: 'response-accessToken'});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(1);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(1);
+    });
+    it('loginEmit. Ошибка', async () => {
+        const testData = {email: 'test@test.com', password: 'password'};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.loginEmit(testData)).rejects.toEqual(errorResponse);
+        expect(socketEmit.socket.auth).toEqual({});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(0);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(0);
     });
 });
