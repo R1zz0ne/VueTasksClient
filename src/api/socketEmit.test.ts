@@ -115,10 +115,13 @@ describe('SocketEmit.#createPromiseEmit', () => {
             }
         };
         // @ts-ignore
-        mockSocket.emit.mockImplementation((event: string, data: any, callback: Function) => {
+        mockSocket.emit.mockImplementation((event, data, callback) => {
             callback(testResponse);
         });
-        await socketEmit.loginEmit(testData);
+        const response = await socketEmit.loginEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('login', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
         expect(socketEmit.socket.auth).toEqual({accessToken: 'response-accessToken'});
         expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(1);
         expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(1);
@@ -131,8 +134,130 @@ describe('SocketEmit.#createPromiseEmit', () => {
             callback(errorResponse);
         });
         await expect(socketEmit.loginEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('login', testData, expect.any(Function));
         expect(socketEmit.socket.auth).toEqual({});
         expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(0);
         expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(0);
     });
+    it('registrationEmit. Успешный ответ', async () => {
+        const testData = {email: 'test@test.com', name: 'test', password: 'password'};
+        const testResponse = {
+            accessToken: 'response-accessToken', refreshToken: 'response-refreshToken', user: {
+                userId: 1, name: 'test', email: 'test@test.com'
+            }
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        })
+        const response = await socketEmit.registrationEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('registration', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+        expect(socketEmit.socket.auth).toEqual({accessToken: 'response-accessToken'});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(1);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(1);
+    });
+    it('registrationEmit. Ошибка', async () => {
+        const testData = {email: 'test@test.com', name: 'test', password: 'password'};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.registrationEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('registration', testData, expect.any(Function));
+        expect(socketEmit.socket.auth).toEqual({});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(0);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(0);
+    });
+    it('logoutEmit. Успешный ответ', async () => {
+        const testData = {refreshToken: 'response-refreshToken'};
+        const testResponse = 'success';
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        })
+        const response = await socketEmit.logoutEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('logout', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+    });
+    it('logoutEmit. Ошибка', async () => {
+        const testData = {refreshToken: 'response-refreshToken'};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.logoutEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('logout', testData, expect.any(Function));
+    });
+    it('refreshEmit. Успешный ответ', async () => {
+        const testData = {refreshToken: 'data-refreshToken'};
+        const testResponse = {
+            accessToken: 'response-accessToken', refreshToken: 'response-refreshToken', user: {
+                userId: 1, name: 'test', email: 'test@test.com'
+            }
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        });
+        const response = await socketEmit.refreshEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('refresh', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+        expect(socketEmit.socket.auth).toEqual({accessToken: 'response-accessToken'});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(1);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(1);
+    });
+    it('refreshEmit. Ошибка', async () => {
+        const testData = {refreshToken: 'data-refreshToken'};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.refreshEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('refresh', testData, expect.any(Function));
+        expect(socketEmit.socket.auth).toEqual({});
+        expect(socketEmit.socket.disconnect).toHaveBeenCalledTimes(0);
+        expect(socketEmit.socket.disconnect().connect).toHaveBeenCalledTimes(0);
+    });
+    it('getUsersEmit. Успешный ответ', async () => {
+        const testData = {query: 'test'};
+        const testResponse = [{userId: 1, name: 'test', email: 'test@test.com'}];
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        });
+        const response = await socketEmit.getUsersEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getUsers', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+    });
+    it('getUsersEmit. Ошибка', async () => {
+        const testData = {query: 'test'};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.getUsersEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getUsers', testData, expect.any(Function));
+    });
+    it('createProjectEmit', () => {
+        const testData = {name: 'test 1', description: 'test2', owner: 2};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation();
+        socketEmit.createProjectEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('createProject', testData);
+    });
+    //TODO
 });
