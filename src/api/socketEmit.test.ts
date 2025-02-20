@@ -2,6 +2,7 @@ import {IAuthResponse} from "../models/userModels.ts";
 import {SocketEmit} from "./socketEmit.ts";
 import {io} from "socket.io-client";
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
+import {ITaskRequestUpdStatus, ITaskUpdateRequest} from "../models/taskModels.ts";
 
 vi.hoisted(() => {
     Object.defineProperty(global, "localStorage", {
@@ -33,7 +34,7 @@ vi.mock('socket.io-client', () => {
     };
 });
 
-describe('SocketEmit.#createPromiseEmit', () => {
+describe('SocketEmit', () => {
     let socketEmit: SocketEmit;
     let mockSocket: any;
 
@@ -43,7 +44,7 @@ describe('SocketEmit.#createPromiseEmit', () => {
     });
     afterEach(() => {
         mockSocket.emit.mockClear();
-    })
+    });
 
     it('#createPromiseEmit. Успешный ответ сразу', async () => {
         const testData = {email: 'test@test.com', password: 'password'};
@@ -259,5 +260,200 @@ describe('SocketEmit.#createPromiseEmit', () => {
         expect(mockSocket.emit).toHaveBeenCalledTimes(1);
         expect(mockSocket.emit).toHaveBeenCalledWith('createProject', testData);
     });
-    //TODO
+    it('updateProjectEmit', () => {
+        const testData = {
+            projectId: 1,
+            name: 'test 1',
+            description: 'test2',
+            owner: 2
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation();
+        socketEmit.updateProjectEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('updateProject', testData);
+    });
+    it('getProjectListEmit', () => {
+        const testData = 1;
+        // @ts-ignore
+        mockSocket.emit.mockImplementation();
+        socketEmit.getProjectListEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getProjectList', {page: testData});
+    });
+    it('getProjectEmit. Успешный ответ', async () => {
+        const testData = {projectId: 1};
+        const testResponse = {
+            projectId: 2, name: 'test2', description: 'test2 description',
+            owner: {userId: 1, name: 'test1', email: 'test1@test.com'},
+            tasks: [],
+            editor: null
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        });
+        const response = await socketEmit.getProjectEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getProject', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+    });
+    it('getProjectEmit. Ошибка', async () => {
+        const testData = {projectId: 1};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.getProjectEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getProject', testData, expect.any(Function));
+    });
+    it('createTaskEmit', () => {
+        const testData = {
+            name: 'task 1',
+            description: 'description 1',
+            priority: 'medium',
+            completionDate: '22-01-2025',
+            projectId: 1,
+            member: 2
+        };
+        mockSocket.emit.mockImplementation();
+        socketEmit.createTaskEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('createTask', testData);
+    });
+    it('updateStatusTaskEmit', () => {
+        const testData: ITaskRequestUpdStatus = {
+            taskId: 1,
+            status: 'inProgress'
+        };
+        mockSocket.emit.mockImplementation();
+        socketEmit.updateStatusTaskEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('updateStatusTask', testData);
+    });
+    it('updateProjectEditor', () => {
+        const testData = {
+            projectId: 1,
+            editor: 2
+        };
+        mockSocket.emit.mockImplementation();
+        socketEmit.updateProjectEditor(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('updateProjectEditor', testData);
+    });
+    it('getTaskEmit. Успешный ответ', async () => {
+        const testData = {taskId: 1};
+        const testResponse = {
+            taskId: 1,
+            name: 'testTask',
+            description: 'description 1',
+            priority: 'medium',
+            complaintDate: '22-01-2025',
+            project: {
+                projectId: 1,
+                name: 'testProject1',
+            },
+            member: {userId: 1, name: 'testUser1', email: 'test@test.com'},
+            status: 'assigned',
+            editor: null
+        };
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        });
+        const response = await socketEmit.getTaskEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getTask', testData, expect.any(Function));
+        expect(response).toEqual(testResponse);
+    });
+    it('getTaskEmit. Ошибка', async () => {
+        const testData = {taskId: 1};
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.getTaskEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getTask', testData, expect.any(Function));
+    });
+    it('updateTaskEmit', () => {
+        const testData: ITaskUpdateRequest = {
+            taskId: 1,
+            name: 'task 1',
+            description: 'description 1',
+            priority: 'medium',
+            projectId: 1,
+            member: 1,
+            status: 'assigned',
+            completionDate: new Date('22-01-2025')
+        };
+        mockSocket.emit.mockImplementation();
+        socketEmit.updateTaskEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('updateTask', testData);
+    });
+    it('updateTaskEditor', () => {
+        const testData = {taskId: 1, editor: null};
+        mockSocket.emit.mockImplementation();
+        socketEmit.updateTaskEditor(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('updateTaskEditor', testData);
+    });
+    it('getTaskListEmit', () => {
+        const testData = 1;
+        mockSocket.emit.mockImplementation();
+        socketEmit.getTaskListEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getTaskList', {page: testData});
+    });
+    it('getCloseTaskListEmit', () => {
+        const testData = 1;
+        mockSocket.emit.mockImplementation();
+        socketEmit.getCloseTaskListEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getCloseTaskList', {page: testData});
+    });
+    it('getNotificationLogEmit', () => {
+        mockSocket.emit.mockImplementation();
+        socketEmit.getNotificationLogEmit();
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('getNotification', null);
+    });
+    it('checkNotificationEmit. Успешный ответ', async () => {
+        const testData = 1;
+        const testResponse = {notificationId: 1, isChecked: false};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(testResponse);
+        });
+        const response = await socketEmit.checkNotificationEmit(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('checkNotification', {notificationId: testData}, expect.any(Function));
+        expect(response).toEqual(testResponse);
+    });
+    it('checkNotificationEmit. Ошибка', async () => {
+        const testData = 1;
+        const errorResponse = {statusCode: 500, type: "error"};
+        // @ts-ignore
+        mockSocket.emit.mockImplementation((event, data, callback) => {
+            callback(errorResponse);
+        });
+        await expect(socketEmit.checkNotificationEmit(testData)).rejects.toEqual(errorResponse);
+        expect(mockSocket.emit).toHaveBeenCalledWith('checkNotification', {notificationId: testData}, expect.any(Function));
+    });
+    it('joinRoom', () => {
+        const testData = {type: 'test', id: 1};
+        mockSocket.emit.mockImplementation();
+        socketEmit.joinRoom(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('joinRoom', testData);
+    });
+    it('leaveRoom', () => {
+        const testData = {type: 'test', id: 1};
+        mockSocket.emit.mockImplementation();
+        socketEmit.leaveRoom(testData);
+        expect(mockSocket.emit).toHaveBeenCalledTimes(1);
+        expect(mockSocket.emit).toHaveBeenCalledWith('leaveRoom', testData);
+    });
 });

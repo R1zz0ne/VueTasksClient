@@ -23,7 +23,6 @@ export class SocketEmit {
             accessToken: localStorage.getItem('token') as string
         },
     })
-
     async #createPromiseEmit<TRes, TData>(event: string, data: TData, isRetry: boolean = false): Promise<TRes> {
         return new Promise((resolve, reject): void => {
             this.socket.emit(event, data, async (response: ISocketEmitResponse<TRes>): Promise<void> => {
@@ -47,32 +46,27 @@ export class SocketEmit {
             })
         })
     }
-
     async loginEmit(data: IAuthForm): Promise<IAuthResponse> {
         const response = await this.#createPromiseEmit<IAuthResponse, IAuthForm>('login', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
-
     async registrationEmit(data: IRegForm): Promise<IAuthResponse> {
         const response = await this.#createPromiseEmit<IAuthResponse, IRegForm>('registration', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
-
     async logoutEmit(data: { refreshToken: string | null }): Promise<Object> {
         return await this.#createPromiseEmit<Object, { refreshToken: string | null }>('logout', data);
     }
-
     async refreshEmit(data: { refreshToken: string | null }): Promise<IAuthResponse> {
         const response = await this.#createPromiseEmit<IAuthResponse, { refreshToken: string | null }>('refresh', data);
         (this.socket.auth as Pick<IAuthResponse, 'accessToken'>).accessToken = response.accessToken;
         this.socket.disconnect().connect();
         return response
     }
-
     async getUsersEmit(data: { query: string }): Promise<IUser[]> {
         return await this.#createPromiseEmit<IUser[], { query: string }>('getUsers', data);
     }
@@ -81,27 +75,21 @@ export class SocketEmit {
     createProjectEmit(data: ICreateProjectEmit): void {
         this.socket.emit('createProject', data)
     }
-
     updateProjectEmit(data: IDataForUpdateProject): void {
         this.socket.emit('updateProject', data);
     }
-
-    async getProjectListEmit(page: number): Promise<void> {
+    getProjectListEmit(page: number): void {
         this.socket.emit('getProjectList', {page})
     }
-
     async getProjectEmit(data: { projectId: number }): Promise<IProjectResponse> {
         return await this.#createPromiseEmit<IProjectResponse, { projectId: number }>('getProject', data);
     }
-
     createTaskEmit(data: ITaskRequest): void {
         this.socket.emit('createTask', data)
     }
-
     updateStatusTaskEmit(data: ITaskRequestUpdStatus): void {
         this.socket.emit('updateStatusTask', data);
     }
-
     updateProjectEditor(data: IProjectUpdateEditor): void {
         this.socket.emit('updateProjectEditor', data);
     }
@@ -110,20 +98,16 @@ export class SocketEmit {
     async getTaskEmit(data: { taskId: number }): Promise<ITaskResponse> {
         return await this.#createPromiseEmit<ITaskResponse, { taskId: number }>('getTask', data);
     }
-
     updateTaskEmit(data: ITaskUpdateRequest): void {
         this.socket.emit('updateTask', data)
     }
-
     updateTaskEditor(data: ITaskUpdateEditor): void {
         this.socket.emit('updateTaskEditor', data);
     }
-
-    async getTaskListEmit(page: number): Promise<void> {
+    getTaskListEmit(page: number): void {
         this.socket.emit('getTaskList', {page})
     }
-
-    async getCloseTaskListEmit(page: number): Promise<void> {
+    getCloseTaskListEmit(page: number): void {
         this.socket.emit('getCloseTaskList', {page})
     }
 
@@ -131,7 +115,6 @@ export class SocketEmit {
     getNotificationLogEmit(): void {
         this.socket.emit('getNotification', null);
     }
-
     async checkNotificationEmit(notificationId: number): Promise<ICheckNotificationLog> {
         return await this.#createPromiseEmit<ICheckNotificationLog, {
             notificationId: number
@@ -142,7 +125,6 @@ export class SocketEmit {
     joinRoom(data: { type: string, id?: number }): void {
         this.socket.emit('joinRoom', data);
     }
-
     leaveRoom(data: { type: string, id?: number }): void {
         this.socket.emit('leaveRoom', data);
     }

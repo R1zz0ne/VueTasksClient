@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  client:
+    container_name: vueTasksClient
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 5173:5173
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - vueTasksNetwork
+networks:
+  vueTasksNetwork:
